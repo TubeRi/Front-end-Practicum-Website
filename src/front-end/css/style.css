@@ -1,3 +1,4 @@
+/* Shared and desktop styles. Responsive overrides are in mobile.css. */
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap");
 
 /* Theme colors */
@@ -74,33 +75,10 @@ footer .logo { font-size: 26px; }
 footer p { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
 section[id] { scroll-margin-top: 24px; }
 
-/* Tablet and phone layouts */
-@media (max-width: 900px) {
-    .container { width: calc(100% - 48px); }
-    .about { gap: 40px; }
-    .tour-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .testimonial-grid { gap: 24px; }
-    nav { gap: 18px; }
-}
-@media (max-width: 600px) {
-    .site-header { flex-wrap: wrap; }
-    .site-header nav { order: 3; width: 100%; justify-content: center; }
-    .site-header .button { padding: 10px 16px; }
-    .hero-content { padding-block: 80px; }
-    h1 { letter-spacing: -2px; }
-    .about, .tour-grid, .testimonial-grid { grid-template-columns: 1fr; }
-    .about { gap: 20px; padding-block: 60px; }
-    .about-copy { padding-top: 0; }
-    .section-heading { display: block; }
-    .section-heading p { margin-top: 20px; }
-    .journeys, .stories, .trip-cta { padding-block: 60px; }
-    footer { align-items: flex-start; flex-direction: column; }
-}
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .button, .tour-photo img { transition: none; }
 }
-
 
 /* Shared spacing also supports the original Travel Together HTML. */
 .site-header:not(.container),
@@ -157,18 +135,6 @@ body > .site-header {
 .testimonials figcaption { display: block; }
 .testimonials figcaption > span { display: block; font-size: 12px; color: var(--muted); }
 img { max-width: 100%; }
-@media (max-width: 900px) {
-    .site-header:not(.container),
-    .hero-content:not(.container),
-    .section,
-    footer:not(.container) { width: calc(100% - 48px); }
-}
-@media (max-width: 600px) {
-    nav, nav ul { flex-wrap: wrap; justify-content: center; gap: 16px; }
-    body > .site-header { flex-direction: column; gap: 18px; }
-    .section { padding-block: 56px; }
-    .testimonials .testimonial-grid { grid-template-columns: 1fr; }
-}
 
 /* Photo journeys: three columns on desktop, two on tablet, one on phone. */
 .tour-photo {
@@ -250,29 +216,6 @@ section[id] { scroll-margin-top: 105px; }
 .review-card .avatar { background: #18302a0c; color: var(--forest); flex-shrink: 0; }
 .review-card blockquote { font-size: 20px; }
 
-/* Keep all three navigation links available on smaller screens. */
-@media (max-width: 900px) {
-    .header-inner { gap: 12px; }
-    .page-header nav a { padding-inline: 14px; }
-    .plan-label { padding-inline: 12px; letter-spacing: 0.6px; }
-}
-@media (max-width: 650px) {
-    body { padding-top: 122px; }
-    .header-inner { flex-wrap: wrap; gap: 0; }
-    .page-header .logo { height: 66px; font-size: 24px; }
-    .plan-label { height: 36px; margin-block: 15px; padding-inline: 12px; font-size: 9px; }
-    .page-header nav { order: 3; width: 100%; justify-content: space-between; flex-wrap: nowrap; min-height: 56px; }
-    .page-header nav a { padding: 16px 10px; font-size: 10px; }
-    section[id] { scroll-margin-top: 145px; }
-    .page-intro { padding-block: 55px 30px; }
-    .story-stats { grid-template-columns: 1fr; gap: 10px; margin-top: 30px; }
-    .story-stats > div { border-left: 0; border-top: 1px solid #18302a25; padding: 16px 0; }
-    .featured-story { padding: 28px; }
-    .review-grid { grid-template-columns: 1fr; }
-    .review-card { padding: 24px; }
-}
-
-
 /* Trip planner popup */
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
@@ -310,12 +253,7 @@ body.planner-open { overflow: hidden; }
 .planner-actions .button { border-radius: 0; white-space: nowrap; }
 .planner-success { padding-block: 24px; }
 [hidden] { display: none !important; }
-@media (max-width: 600px) {
-    .trip-dialog { padding: 28px 20px; max-height: calc(100dvh - 24px); }
-    .planner-grid { grid-template-columns: 1fr; }
-    .planner-actions { flex-direction: column; align-items: stretch; gap: 16px; }
-    .trip-dialog h2 { font-size: 32px; }
-}
+
 @media (prefers-reduced-motion: reduce) {
     [data-open-trip], .planner-actions button, [data-close-trip] { transition: none; }
     [data-open-trip]:hover, .planner-actions button:hover, [data-close-trip]:hover { transform: none; }
