@@ -1,4 +1,4 @@
-# Traveloint
+# TravelPoint
 Front-end application for practicum
 
 ## Tech Stack
