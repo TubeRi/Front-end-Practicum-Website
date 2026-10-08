@@ -12,7 +12,7 @@
     <div class="header-inner container">
         <a class="logo" href="index.html" aria-label="TravelPoint home">TravelPoint</a>
         <nav aria-label="Main navigation"><a href="about.html" aria-current="page">About</a><a href="destinations.html">Destinations</a><a href="stories.html">Stories</a></nav>
-        <span class="plan-label" aria-disabled="true">Plan your trip <span aria-hidden="true">↗</span></span>
+        <button type="button" class="plan-label" data-open-trip>Plan your trip <span aria-hidden="true">↗</span></button>
     </div>
 </header>
 <main>
@@ -93,7 +93,7 @@
                 <p class="eyebrow">Your journey starts here</p>
                 <h2>Let’s plan something remarkable.</h2>
                 <p>Tell us where you’re dreaming of. One of our travel designers will be in touch within two working days.</p>
-                <span class="button button-dark" aria-disabled="true">Plan your trip <span aria-hidden="true">↗</span></span>
+                <button type="button" class="button button-dark" data-open-trip>Plan your trip <span aria-hidden="true">↗</span></button>
             </div>
         </section>
     
@@ -102,6 +102,29 @@
     <div><a class="logo" href="index.html">TravelPoint</a><p>Considered journeys, made personal.</p></div>
     <p>&copy; 2026 TravelPoint. Course project.</p>
 </footer>
+<dialog class="trip-dialog" aria-labelledby="trip-title">
+    <button type="button" class="dialog-close" aria-label="Close trip planner">×</button>
+    <div class="planner-content">
+        <p class="eyebrow">Your trip, your way</p>
+        <h2 id="trip-title">Plan your trip</h2>
+        <p>Tell us what your ideal journey looks like. You can keep things broad—we’ll help with the details.</p>
+        <form id="trip-form">
+            <div class="planner-grid"><label for="destination">Where would you like to go?<select id="destination" name="destination" required><option value="" disabled selected>Choose a destination</option><option>Japan</option><option>Argentina</option><option>Morocco</option><option>Indonesia</option><option>Italy</option><option>Greece</option><option>Somewhere else</option><option>Surprise me</option></select></label><label for="departure">Preferred departure<input id="departure" name="departure" type="month"></label><label for="duration">Trip duration<select id="duration" name="duration" required><option value="" disabled selected>Select length</option><option>3–5 days</option><option>6–8 days</option><option>9–12 days</option><option>13–16 days</option><option>More than 16 days</option><option>I’m flexible</option></select></label><label for="style">Trip type<select id="style" name="style" required><option value="" disabled selected>Choose a style</option><option>Culture &amp; local life</option><option>Adventure &amp; outdoors</option><option>Beach &amp; relaxation</option><option>Food &amp; wine</option><option>Romance &amp; honeymoon</option><option>Family getaway</option><option>A mix of everything</option></select></label><label for="travelers">Number of travelers<select id="travelers" name="travelers" required><option>1 traveler</option><option selected>2 travelers</option><option>3–4 travelers</option><option>5–6 travelers</option><option>7 or more travelers</option></select></label><label for="pace">Travel pace<select id="pace" name="pace" required><option>Slow &amp; relaxed</option><option selected>Balanced</option><option>Full of experiences</option></select></label><label for="accommodation">Accommodation<select id="accommodation" name="accommodation" required><option value="" disabled selected>Select preference</option><option>Charming &amp; local</option><option>Boutique comfort</option><option>Luxury stays</option><option>A thoughtful mix</option></select></label><label for="budget">Budget per traveler<select id="budget" name="budget" required><option value="" disabled selected>Select a range</option><option>Under $2,000</option><option>$2,000–$3,500</option><option>$3,500–$5,000</option><option>$5,000–$8,000</option><option>$8,000+</option><option>I’m not sure yet</option></select></label></div>
+            <label for="notes">Anything else we should know?
+                <textarea id="notes" name="notes" rows="3" placeholder="Celebrations, must-see places, accessibility needs, or anything that would make this trip special..."></textarea>
+            </label>
+            <div class="planner-actions"><p>No commitment—this simply helps us understand your plans.</p><button class="button button-dark" type="submit">Create my trip <span aria-hidden="true">↗</span></button></div>
+        </form>
+    </div>
+    <section class="planner-success" hidden aria-labelledby="success-title">
+        <p class="eyebrow">Your journey starts here</p>
+        <h2 id="success-title" tabindex="-1">Your trip ideas are ready.</h2>
+        <p id="trip-summary"></p>
+        <p>This is a course project demo. Your choices have not been sent or saved.</p>
+        <button type="button" class="button button-dark" data-close-trip>Done</button>
+    </section>
+</dialog>
+<script src="../js/trip-planner.js" defer></script>
 </body>
 </html>
 
