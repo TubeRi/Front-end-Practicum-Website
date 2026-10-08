@@ -1,4 +1,5 @@
-// Share the same planner behavior across all pages.
+// Share the same planner behavior across all pages
+//JS wasnt needed, inline inside html would have worked as well but wanted to try make it more interactive
 const dialog = document.querySelector('.trip-dialog');
 const form = document.querySelector('#trip-form');
 const content = document.querySelector('.planner-content');
