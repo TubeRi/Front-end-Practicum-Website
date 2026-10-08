@@ -1,0 +1,188 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap");
+
+/* Theme colors */
+:root {
+    --cream: #f6f2e9;
+    --forest: #18302a;
+    --gold: #e6b954;
+    --muted: #65716a;
+}
+
+/* Basic page styles */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--cream); color: var(--forest); font-family: "DM Sans", Arial, sans-serif; line-height: 1.65; }
+a { color: inherit; text-decoration: none; }
+a:focus-visible { outline: 3px solid currentColor; outline-offset: 6px; }
+p, h1, h2, h3 { margin-top: 0; }
+h1, h2, h3, .logo { font-family: "DM Serif Display", Georgia, serif; font-weight: normal; line-height: 1.08; }
+h2 { font-size: clamp(36px, 4vw, 52px); letter-spacing: -1.5px; }
+h3 { font-size: 30px; margin-bottom: 18px; }
+.container { width: min(1200px, calc(100% - 96px)); margin-inline: auto; }
+.eyebrow { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 22px; }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 24px; padding: 13px 24px; border-radius: 50px; background: var(--gold); color: var(--forest); font-size: 14px; font-weight: bold; transition: background 0.2s; }
+.button:hover { background: #f1ca70; }
+.button-outline { border: 1px solid #ffffff80; background: transparent; color: white; }
+.button-outline:hover { background: #ffffff18; }
+.button-dark { background: var(--forest); color: white; padding: 16px 28px; }
+.button-dark:hover { background: #2b4b41; }
+
+/* Photo hero and navigation */
+.hero { color: white; background: linear-gradient(90deg, #18302a99, #18302a20), url("https://images.unsplash.com/photo-1786379055306-9fc939ad3fcb?auto=format&fit=crop&w=2000&q=90") center / cover; background-color: var(--forest); }
+.site-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 26px; border-bottom: 1px solid #ffffff30; }
+.logo { font-size: 29px; }
+nav { display: flex; gap: 32px; font-size: 14px; }
+nav a:hover { text-decoration: underline; text-underline-offset: 6px; }
+.hero-content { padding-block: 110px 100px; }
+.hero .eyebrow { color: var(--gold); }
+h1 { max-width: 760px; overflow-wrap: break-word; font-size: clamp(44px, 7.5vw, 104px); letter-spacing: -3px; margin-bottom: 28px; }
+.hero-description { max-width: 475px; font-size: 19px; color: #ffffffe0; margin-bottom: 32px; }
+
+/* Introduction and six tour cards */
+.about { display: grid; grid-template-columns: 1.1fr 1fr; gap: 100px; padding-block: 90px; border-bottom: 1px solid #18302a25; }
+.about h2 { font-size: clamp(32px, 3vw, 42px); margin-bottom: 0; }
+.about-copy { padding-top: 30px; color: var(--muted); }
+.about-copy p:last-child { margin-bottom: 0; }
+.journeys { padding-block: 90px; }
+.section-heading { display: flex; justify-content: space-between; align-items: end; gap: 40px; margin-bottom: 42px; }
+.section-heading h2 { margin-bottom: 0; }
+.section-heading p { max-width: 390px; color: var(--muted); margin-bottom: 0; }
+.tour-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 45px 28px; }
+.tour-photo { aspect-ratio: 4 / 3; overflow: hidden; margin-bottom: 24px; }
+.tour-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s; }
+.tour-card:hover img { transform: scale(1.04); }
+.tour-card .eyebrow { font-size: 10px; color: var(--muted); margin-bottom: 10px; }
+.tour-details { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #18302a25; padding-top: 15px; font-size: 14px; color: var(--muted); }
+.tour-details strong { color: var(--forest); font-weight: normal; }
+
+/* Traveler stories */
+.stories { background: var(--forest); color: white; padding-block: 85px; }
+.stories .eyebrow { color: var(--gold); }
+.testimonial-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; margin-top: 45px; }
+figure { margin: 0; display: flex; flex-direction: column; border-top: 1px solid #ffffff30; padding-top: 26px; }
+blockquote { margin: 0 0 30px; font-family: Georgia, serif; font-size: 20px; line-height: 1.65; }
+figcaption { display: flex; align-items: center; gap: 14px; font-size: 14px; margin-top: auto; }
+.avatar { display: grid; place-items: center; width: 42px; height: 42px; background: #ffffff15; border-radius: 50%; color: var(--gold); font-size: 12px; }
+figcaption small { display: block; color: #ffffff99; font-size: 12px; }
+
+/* Trip planning and footer */
+.trip-cta { background: var(--gold); text-align: center; padding-block: 95px; }
+.trip-cta h2 { max-width: 700px; margin: 0 auto 24px; font-size: clamp(40px, 5vw, 64px); }
+.trip-cta p:not(.eyebrow) { max-width: 540px; margin: 0 auto 32px; }
+footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 36px; }
+footer .logo { font-size: 26px; }
+footer p { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+section[id] { scroll-margin-top: 24px; }
+
+/* Tablet and phone layouts */
+@media (max-width: 900px) {
+    .container { width: calc(100% - 48px); }
+    .about { gap: 40px; }
+    .tour-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .testimonial-grid { gap: 24px; }
+    nav { gap: 18px; }
+}
+@media (max-width: 600px) {
+    .site-header { flex-wrap: wrap; }
+    .site-header nav { order: 3; width: 100%; justify-content: center; }
+    .site-header .button { padding: 10px 16px; }
+    .hero-content { padding-block: 80px; }
+    h1 { letter-spacing: -2px; }
+    .about, .tour-grid, .testimonial-grid { grid-template-columns: 1fr; }
+    .about { gap: 20px; padding-block: 60px; }
+    .about-copy { padding-top: 0; }
+    .section-heading { display: block; }
+    .section-heading p { margin-top: 20px; }
+    .journeys, .stories, .trip-cta { padding-block: 60px; }
+    footer { align-items: flex-start; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .button, .tour-photo img { transition: none; }
+}
+
+
+/* Shared spacing also supports the original Travel Together HTML. */
+.site-header:not(.container),
+.hero-content:not(.container),
+.section,
+footer:not(.container) {
+    width: min(1200px, calc(100% - 96px));
+    margin-inline: auto;
+}
+nav ul {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 28px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+body > .site-header {
+    padding-block: 24px;
+    border-bottom: 0;
+}
+.hero-content > p:not(.eyebrow) {
+    max-width: 475px;
+    font-size: 19px;
+    margin-bottom: 32px;
+}
+.section { padding-block: 80px; }
+.section-intro { color: var(--muted); margin-bottom: 36px; }
+.tour-card { min-width: 0; }
+.tour-card:not(:has(.tour-photo)) {
+    display: flex;
+    flex-direction: column;
+    padding: 28px;
+    border: 1px solid #18302a25;
+    background: #fffcf6;
+}
+.destination {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+}
+.tour-card > p:not(.eyebrow) { color: var(--muted); }
+.tour-card > a { margin-top: 22px; font-weight: bold; font-size: 14px; }
+.tour-details p { margin: 0; }
+.testimonials .testimonial-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.testimonials figure { border-color: #18302a25; }
+.testimonials figcaption { display: block; }
+.testimonials figcaption > span { display: block; font-size: 12px; color: var(--muted); }
+img { max-width: 100%; }
+@media (max-width: 900px) {
+    .site-header:not(.container),
+    .hero-content:not(.container),
+    .section,
+    footer:not(.container) { width: calc(100% - 48px); }
+}
+@media (max-width: 600px) {
+    nav, nav ul { flex-wrap: wrap; justify-content: center; gap: 16px; }
+    body > .site-header { flex-direction: column; gap: 18px; }
+    .section { padding-block: 56px; }
+    .testimonials .testimonial-grid { grid-template-columns: 1fr; }
+}
+
+/* Photo journeys: three columns on desktop, two on tablet, one on phone. */
+.tour-photo {
+    aspect-ratio: 4 / 5;
+    border-radius: 4px;
+}
+.tour-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    font-weight: normal;
+}
+.tour-link span { font-family: Arial, sans-serif; font-size: 20px; }
+.tour-link:hover { text-decoration: underline; text-underline-offset: 5px; }
+.tour-details { border-top: 0; padding-top: 4px; }
+.tour-details strong { font-weight: bold; }
