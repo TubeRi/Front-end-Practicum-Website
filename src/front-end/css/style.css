@@ -28,7 +28,7 @@ h3 { font-size: 30px; margin-bottom: 18px; }
 .button-dark:hover { background: #2b4b41; }
 
 /* Photo hero and navigation */
-.hero { color: white; background: linear-gradient(90deg, #18302a99, #18302a20), url("https://images.unsplash.com/photo-1786379055306-9fc939ad3fcb?auto=format&fit=crop&w=2000&q=90") center / cover; background-color: var(--forest); }
+.hero { color: white; background: linear-gradient(90deg, #18302a99, #18302a20), url("../assets/Photos/greece.jpeg") center / cover; background-color: var(--forest); }
 .site-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 26px; border-bottom: 1px solid #ffffff30; }
 .logo { font-size: 29px; }
 nav { display: flex; gap: 32px; font-size: 14px; }
@@ -271,3 +271,4 @@ section[id] { scroll-margin-top: 105px; }
     .review-grid { grid-template-columns: 1fr; }
     .review-card { padding: 24px; }
 }
+
