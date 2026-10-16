@@ -14,3 +14,8 @@ Desktop.ini
 .env
 .env.*
 !.env.example
+
+# Build and dependencies
+node_modules/
+dist/
+*.local

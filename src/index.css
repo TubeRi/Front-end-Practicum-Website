@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
+@import 'tailwindcss';
+@theme {
+  --color-cream: #f6f2e9;
+  --color-forest: #18302a;
+  --color-gold: #e6b954;
+  --color-muted: #65716a;
+  --font-sans: 'DM Sans', Arial, sans-serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
+}
+@layer base {
+  html { @apply scroll-smooth motion-reduce:scroll-auto; }
+  body { @apply m-0 bg-cream font-sans text-forest leading-[1.65]; }
+  h1,h2,h3 { @apply font-display font-normal leading-[1.08]; }
+  h1 { @apply mb-7 max-w-[760px] text-[clamp(44px,7.5vw,104px)] tracking-[-2px] md:tracking-[-3px]; }
+  h2 { @apply mb-6 text-[clamp(36px,4vw,52px)] tracking-[-1.5px]; }
+  h3 { @apply mb-[18px] text-3xl; }
+  p { @apply mb-4; }
+  a { @apply text-inherit no-underline; }
+  a:focus-visible,button:focus-visible { @apply outline-3 outline-gold outline-offset-4; }
+  button { @apply cursor-pointer; }
+  section[id] { @apply scroll-mt-36 md:scroll-mt-28; }
+}
