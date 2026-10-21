@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link, Route, Routes, useLocation, Navigate } from 'react-router';
+
 import Home from './pages/Home';
 import Destinations from './pages/Destinations';
 import Stories from './pages/Stories';
 import TripPlanner from './components/TripPlanner';
 import Header from './components/Header';
 import Footer from './components/Footer';
+
 const container = 'mx-auto w-[calc(100%-48px)] max-w-[1200px] min-[901px]:w-[calc(100%-96px)]';
+
 export default function App() {
   const [plannerOpen, setPlannerOpen] = useState(false);
   const { pathname } = useLocation();
