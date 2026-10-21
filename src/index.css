@@ -1,23 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap");
+@import "tailwindcss";
+
 @theme {
   --color-cream: #f6f2e9;
   --color-forest: #18302a;
   --color-gold: #e6b954;
-  --color-muted: #65716a;
-  --font-sans: 'DM Sans', Arial, sans-serif;
-  --font-display: 'DM Serif Display', Georgia, serif;
+  --color-canvas: #f6f2e9;
+  --color-ink: #18302a;
+  --color-muted: #68736d;
+  --color-line: #d8d6ca;
+  --color-sand: #e8dfcf;
+  --color-sun: #e6b954;
+  --color-moss: #44695b;
+  --color-night: #081513;
+  --color-tide: #6d9c92;
+  --font-sans: "DM Sans", sans-serif;
+  --font-display: "DM Serif Display", serif;
 }
-@layer base {
-  html { @apply scroll-smooth motion-reduce:scroll-auto; }
-  body { @apply m-0 bg-cream font-sans text-forest leading-[1.65]; }
-  h1,h2,h3 { @apply font-display font-normal leading-[1.08]; }
-  h1 { @apply mb-7 max-w-[760px] text-[clamp(44px,7.5vw,104px)] tracking-[-2px] md:tracking-[-3px]; }
-  h2 { @apply mb-6 text-[clamp(36px,4vw,52px)] tracking-[-1.5px]; }
-  h3 { @apply mb-[18px] text-3xl; }
-  p { @apply mb-4; }
-  a { @apply text-inherit no-underline; }
-  a:focus-visible,button:focus-visible { @apply outline-3 outline-gold outline-offset-4; }
-  button { @apply cursor-pointer; }
-  section[id] { @apply scroll-mt-36 md:scroll-mt-28; }
+
+html {
+  scroll-behavior: smooth;
 }
+
+body {
+  margin: 0;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-sun);
+  color: var(--color-ink);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+button { cursor: pointer; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--color-moss); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; } }

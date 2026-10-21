@@ -1,12 +1,70 @@
-import { Link } from 'react-router';
+import { Link } from "react-router"
 
-const container = 'mx-auto w-[calc(100%-48px)] max-w-[1200px] min-[901px]:w-[calc(100%-96px)]';
-
-export default function Footer() {
+function Footer() {
   return (
-    <footer className={`${container} flex flex-col items-start justify-between gap-6 py-9 text-xs text-muted min-[601px]:flex-row min-[601px]:items-center`}>
-      <div><Link to="/" className="font-display text-[26px] leading-tight text-forest">TravelPoint</Link><p className="mt-2 mb-0">Considered journeys, made personal.</p></div>
-      <p className="mb-0">© 2026 TravelPoint. Course project.</p>
+    <footer className="border-t border-line bg-canvas px-5 py-10 sm:px-6 lg:px-10">
+      <div className="mx-auto grid max-w-7xl gap-8 text-sm text-muted sm:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
+        <div>
+          <Link
+            to="/"
+            className="font-display text-2xl text-ink outline-none focus-visible:ring-2 focus-visible:ring-moss"
+          >
+            TravelPoint
+          </Link>
+          <p className="mt-3 max-w-xs leading-relaxed">
+            Considered journeys, made personal by people who know the places.
+          </p>
+        </div>
+        <div>
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-moss">
+            Explore
+          </p>
+          <div className="flex flex-col items-start gap-2">
+            <Link
+              className="hover:text-ink focus-visible:text-ink"
+              to="/#about"
+            >
+              About
+            </Link>
+            <Link
+              className="hover:text-ink focus-visible:text-ink"
+              to="/destinations"
+            >
+              Countries
+            </Link>
+            <Link
+              className="hover:text-ink focus-visible:text-ink"
+              to="/stories"
+            >
+              Traveler stories
+            </Link>
+          </div>
+        </div>
+        <div>
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-moss">
+            Talk to us
+          </p>
+          <div className="flex flex-col items-start gap-2">
+            <a
+              className="hover:text-ink focus-visible:text-ink"
+              href="mailto:hello@travelpoint.travel"
+            >
+              hello@travelpoint.travel
+            </a>
+            <a
+              className="hover:text-ink focus-visible:text-ink"
+              href="tel:+351210000000"
+            >
+              +351 210 000 000
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto mt-10 max-w-7xl border-t border-line pt-5 text-xs text-muted">
+        © 2026 TravelPoint. Frontend demonstration—no real bookings or payments.
+      </div>
     </footer>
-  );
+  )
 }
+
+export default Footer

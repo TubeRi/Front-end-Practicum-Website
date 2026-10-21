@@ -1,68 +1,105 @@
-import { Link } from 'react-router';
+import { useState } from "react"
+import BookingModal from "./BookingModal"
+import QuantityStepper from "./QuantityStepper"
 
-const priceFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'EUR',
+const euro = new Intl.NumberFormat("en-IE", {
+  style: "currency",
+  currency: "EUR",
   maximumFractionDigits: 0,
-});
+})
 
-export default function DestinationCard({ destination, compact = false }) {
-  const Heading = compact ? 'h3' : 'h2';
-
-  if (compact) {
-    return (
-      <article className="group min-w-0">
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-sm bg-forest/5">
-          <img src={destination.image} alt={destination.imageAlt} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none" />
-        </div>
-        <div className="border-b border-forest/15 py-5">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.17em] text-[#44695b]">{destination.location}</p>
-          <div className="flex items-start justify-between gap-5">
-            <h3 className="mb-0 font-display text-3xl leading-tight">{destination.title}</h3>
-            <span aria-hidden="true" className="mt-1 text-xl transition-transform group-hover:translate-x-1 group-hover:-translate-y-1 motion-reduce:transition-none">↗</span>
-          </div>
-          <div className="mt-5 flex items-center justify-between text-sm text-muted">
-            <span>{destination.days} days</span>
-            <span>From <strong className="font-bold text-forest">{priceFormatter.format(destination.price)}</strong></span>
-          </div>
-          <Link to={'/destinations?search=' + encodeURIComponent(destination.location.split(',')[0])} aria-label={'View ' + destination.title} className="mt-4 inline-flex border-b border-forest pb-1 text-sm font-bold hover:text-[#44695b]">View journey</Link>
-        </div>
-      </article>
-    );
-  }
+function DestinationCard({ destination, initialTravelers = 1 }) {
+  const [travelers, setTravelers] = useState(initialTravelers)
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const totalPrice = destination.price * travelers
 
   return (
-    <article className={`group min-w-0 ${compact ? '' : 'flex flex-col'}`}>
-      <div className="relative mb-6 aspect-[4/5] w-full overflow-hidden rounded">
-        <img
-          src={destination.image}
-          alt={destination.imageAlt}
-          loading="lazy"
-          className="absolute inset-0 block h-full w-full object-cover transition-transform duration-400 group-hover:scale-[1.04] motion-reduce:transition-none"
-        />
-      </div>
-      <p className="mb-2.5 text-[10px] font-bold uppercase tracking-[2.5px] text-muted">
-        {destination.location}
-        {!compact && (
-          <span className="float-right rounded border border-forest/15 px-1.5 normal-case tracking-normal">
-            {destination.regionLabel}
+    <>
+      <article className="group flex min-w-0 flex-col bg-white shadow-[0_12px_35px_rgba(8,21,19,0.07)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(8,21,19,0.12)]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-sand">
+          <img
+            src={destination.image}
+            alt={destination.alt}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <span className="absolute left-3 top-3 bg-canvas/95 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-ink backdrop-blur-sm">
+            {destination.category}
           </span>
-        )}
-      </p>
-      <Heading className={compact ? '' : 'mb-3.5 text-3xl tracking-[-0.5px]'}>
-        {compact ? (
-          <Link to="/destinations" className="flex items-baseline justify-between gap-4 hover:underline hover:underline-offset-4">
-            {destination.title}<span aria-hidden="true" className="font-sans text-xl">↗</span>
-          </Link>
-        ) : destination.title}
-      </Heading>
-      {!compact && <p className="mb-6 text-[15px] text-muted">{destination.description}</p>}
-      <div className="mt-auto flex justify-between gap-3 pt-1 text-sm text-muted">
-        <span>{destination.days} days</span>
-        <span>From <strong className="font-bold text-forest">{priceFormatter.format(destination.price)}</strong></span>
-      </div>
-      {compact && <Link to="/destinations" className="mt-4 inline-block self-start border-b border-forest pb-1 text-sm font-bold">View journey</Link>}
-    </article>
-  );
+          <span className="absolute right-3 top-3 bg-night/85 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
+            ★ {destination.rating}
+          </span>
+        </div>
+
+        <div className="flex flex-1 flex-col p-5 sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-widest text-moss">
+            {destination.location}, {destination.country}
+          </p>
+          <h2 className="mt-2 font-display text-3xl leading-tight">
+            {destination.name}
+          </h2>
+          <p className="mt-3 line-clamp-3 leading-relaxed text-muted">
+            {destination.description}
+          </p>
+
+          <div className="mt-5 flex items-center justify-between gap-4 border-y border-line py-4 text-sm">
+            <span className="text-muted">{destination.duration} days</span>
+            <span className="text-right">
+              <strong className="block text-lg text-ink">
+                {euro.format(destination.price)}
+              </strong>
+              <span className="text-xs text-muted">per person</span>
+            </span>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-muted">
+                Travelers
+              </span>
+              <QuantityStepper
+                value={travelers}
+                onChange={setTravelers}
+                min={1}
+                max={10}
+              />
+            </div>
+            <div className="text-right">
+              <span className="block text-xs uppercase tracking-widest text-muted">
+                Trip total
+              </span>
+              <strong className="font-display text-2xl">
+                {euro.format(totalPrice)}
+              </strong>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setDetailsOpen(true)}
+            className="group/button mt-6 flex w-full cursor-pointer items-center justify-between bg-ink px-5 py-4 font-bold text-white outline-none transition-colors hover:bg-moss focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+          >
+            View details & book
+            <span
+              className="text-sun transition-transform group-hover/button:translate-x-1"
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+        </div>
+      </article>
+
+      {detailsOpen && (
+        <BookingModal
+          destination={destination}
+          travelers={travelers}
+          onTravelersChange={setTravelers}
+          onClose={() => setDetailsOpen(false)}
+        />
+      )}
+    </>
+  )
 }
 
+export default DestinationCard

@@ -1,46 +1,81 @@
-import Testimonial from '../components/Testimonial';
 import { testimonials } from '../data/testimonials';
+import Testimonial from '../components/Testimonial';
+function StoriesPage() {
+  const featured = testimonials[0]
 
-const featuredTestimonial = testimonials.find(testimonial => testimonial.featured);
-const recentTestimonials = testimonials.filter(testimonial => !testimonial.featured);
-
-export default function Stories() {
   return (
-    <main>
-      <section className="pt-[55px] pb-[30px] min-[651px]:pt-[85px] min-[651px]:pb-[50px] [&_h1]:max-w-[950px] [&_h1]:text-[clamp(44px,6vw,76px)] [&_h1]:tracking-[-2px] [&>p:not(.eyebrow)]:max-w-[650px] [&>p:not(.eyebrow)]:text-lg [&>p:not(.eyebrow)]:text-muted mx-auto w-[calc(100%-48px)] max-w-[1200px] min-[901px]:w-[calc(100%-96px)]">
-        <p className="eyebrow mb-[22px] text-[11px] font-bold uppercase tracking-[2.5px]">Traveler stories</p>
-        <h1>Told by the people who went.</h1>
-        <p>Honest reflections from travelers who trusted us to turn an idea into an experience they’ll carry with them.</p>
-        <dl className="mt-[30px] grid gap-2.5 min-[651px]:mt-[55px] min-[651px]:grid-cols-3 min-[651px]:gap-0 [&>div]:flex [&>div]:flex-col [&>div]:border-t [&>div]:border-forest/15 [&>div]:py-4 min-[651px]:[&>div]:border-t-0 min-[651px]:[&>div]:border-l min-[651px]:[&>div]:px-7 [&>div:first-child]:border-0 [&>div:first-child]:pl-0 [&_dt]:text-[13px] [&_dt]:text-muted [&_dd]:order-first [&_dd]:font-serif [&_dd]:text-[38px] [&_dd]:font-bold">
-            <div>
-              <dt>Average traveler rating</dt>
-              <dd>4.9 / 5</dd>
+    <>
+      <main className="min-h-screen bg-canvas text-ink">
+
+
+        <section className="border-b border-line px-5 py-16 sm:px-6 sm:py-20 lg:px-10 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <p className="mb-5 text-xs font-bold uppercase tracking-widest text-moss">
+              Traveler stories
+            </p>
+            <div className="grid items-end gap-10 lg:grid-cols-[1.35fr_0.65fr]">
+              <h1 className="max-w-4xl font-display text-6xl leading-none tracking-tight sm:text-7xl lg:text-8xl">
+                Told by the people who went.
+              </h1>
+              <p className="max-w-md text-lg leading-relaxed text-muted">
+                Honest reflections from travelers who trusted us to turn an idea
+                into an experience they’ll carry with them.
+              </p>
             </div>
-            <div>
-              <dt>Would travel with us again</dt>
-              <dd>96%</dd>
+
+            <div className="mt-16 grid gap-px bg-line sm:grid-cols-3">
+              <div className="bg-canvas py-6 sm:px-6 sm:first:pl-0">
+                <strong className="block font-display text-4xl">4.9 / 5</strong>
+                <span className="mt-1 block text-sm text-muted">
+                  Average traveler rating
+                </span>
+              </div>
+              <div className="bg-canvas py-6 sm:px-6">
+                <strong className="block font-display text-4xl">96%</strong>
+                <span className="mt-1 block text-sm text-muted">
+                  Would travel with us again
+                </span>
+              </div>
+              <div className="bg-canvas py-6 sm:px-6">
+                <strong className="block font-display text-4xl">28</strong>
+                <span className="mt-1 block text-sm text-muted">
+                  Countries explored this year
+                </span>
+              </div>
             </div>
-            <div>
-              <dt>Countries explored this year</dt>
-              <dd>28</dd>
+          </div>
+        </section>
+
+        <section className="bg-ink px-5 py-16 text-white sm:px-6 sm:py-20 lg:px-10 lg:py-28">
+          <Testimonial testimonial={featured} featured />
+        </section>
+
+        <section className="px-5 py-16 sm:px-6 sm:py-20 lg:px-10 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-12 flex items-end justify-between border-b border-line pb-6">
+              <div>
+                <p className="mb-3 text-xs font-bold uppercase tracking-widest text-moss">
+                  In their own words
+                </p>
+                <h2 className="font-display text-5xl">Recent experiences</h2>
+              </div>
+              <p className="hidden text-sm text-muted sm:block">
+                Verified TravelPoint travelers
+              </p>
             </div>
-        </dl>
-      </section>
-      <section className="bg-forest p-7 text-white min-[651px]:p-12 mx-auto w-[calc(100%-48px)] max-w-[1200px] min-[901px]:w-[calc(100%-96px)]" aria-label="Featured traveler story">
-        <Testimonial testimonial={featuredTestimonial} featured />
-      </section>
-      <section className="pt-[75px] pb-[85px] mx-auto w-[calc(100%-48px)] max-w-[1200px] min-[901px]:w-[calc(100%-96px)]">
-        <p className="eyebrow mb-[22px] text-[11px] font-bold uppercase tracking-[2.5px]">In their own words</p>
-        <div className="mb-[42px] gap-10 min-[601px]:flex min-[601px]:items-end min-[601px]:justify-between [&_h2]:mb-0 [&_p]:mb-0 [&_p]:mt-5 [&_p]:max-w-[390px] [&_p]:text-muted">
-          <h2>Recent experiences</h2>
-          <p>Verified TravelPoint travelers</p>
-        </div>
-        <div className="grid gap-6 min-[651px]:grid-cols-2">
-          {recentTestimonials.map(testimonial => (
-            <Testimonial key={testimonial.id} testimonial={testimonial} />
-          ))}
-        </div>
-      </section>
-    </main>
-  );
+
+            <div className="grid gap-px bg-line md:grid-cols-2">
+              {testimonials.slice(1).map((testimonial) => (
+                <Testimonial key={testimonial.name} testimonial={testimonial} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+
+      </main>
+    </>
+  )
 }
+
+export default StoriesPage

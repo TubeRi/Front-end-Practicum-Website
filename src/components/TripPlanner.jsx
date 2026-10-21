@@ -7,7 +7,7 @@ const fields = [
   ['travelers', 'Number of travelers', ['1 traveler', '2 travelers', '3–4 travelers', '5–6 travelers', '7 or more travelers'], '2 travelers'],
   ['pace', 'Travel pace', ['Slow & relaxed', 'Balanced', 'Full of experiences'], 'Balanced'],
   ['accommodation', 'Accommodation', ['Charming & local', 'Boutique comfort', 'Luxury stays', 'A thoughtful mix']],
-  ['budget', 'Budget per traveler', ['Under $2,000', '$2,000–$3,500', '$3,500–$5,000', '$5,000–$8,000', '$8,000+', 'I’m not sure yet']],
+  ['budget', 'Budget per traveler', ['Under €2,000', '€2,000–€3,500', '€3,500–€5,000', '€5,000–€8,000', '€8,000+', 'I’m not sure yet']],
 ];
 const control = 'mt-2 block w-full min-w-0 border border-forest/25 bg-[#fffcf6] px-3 py-3 text-sm font-normal focus:outline-2 focus:outline-forest focus:outline-offset-2';
 const button = 'inline-flex items-center justify-center gap-6 bg-forest px-7 py-4 text-sm font-bold text-white hover:bg-[#2b4b41]';
@@ -62,10 +62,10 @@ export default function TripPlanner({ open, onClose }) {
             {index === 0 && <label className="block text-xs font-bold" htmlFor="departure">Preferred departure (optional)<input id="departure" name="departure" type="month" className={control} /></label>}
           </div>)}
         </div>
-        <label htmlFor="notes" className="block text-xs font-bold">Anything else we should know?<textarea id="notes" name="notes" rows={3} className={`${control} resize-y`} placeholder="Celebrations, must-see places, accessibility needs, or anything that would make this trip special..." /></label>
+        <label htmlFor="notes" className="block text-xs font-bold">Anything else we should know?<textarea id="notes" name="notes" rows={3} className={`€{control} resize-y`} placeholder="Celebrations, must-see places, accessibility needs, or anything that would make this trip special..." /></label>
         <div className="mt-6 flex flex-col gap-4 min-[601px]:flex-row min-[601px]:items-center min-[601px]:justify-between min-[601px]:gap-6">
           <p className="mb-0 max-w-[300px] text-[11px] text-muted">No commitment—this simply helps us understand your plans.</p>
-          <button type="submit" className={`${button} whitespace-nowrap`}>Create my trip <span aria-hidden="true">↗</span></button>
+          <button type="submit" className={`€{button} whitespace-nowrap`}>Create my trip <span aria-hidden="true">↗</span></button>
         </div>
       </form>
     </>}
