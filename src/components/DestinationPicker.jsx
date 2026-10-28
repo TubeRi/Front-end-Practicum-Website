@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { destinations } from "../data/destinations"
+import { useCatalog } from '../context/CatalogContext';
 import { useEffect, useMemo, useRef, useState } from "react"
 
 const monthNames = [
@@ -62,6 +62,7 @@ const displayDate = (timestamp) =>
     : ""
 
 export default function DestinationPicker() {
+  const { destinations, destinationCategories } = useCatalog();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false)
   const [dateOpen, setDateOpen] = useState(false)
@@ -98,7 +99,7 @@ export default function DestinationPicker() {
     })
 
     return Array.from(grouped.values())
-  }, [])
+  }, [destinations])
 
   const visibleCountries = useMemo(() => {
     const query = search.trim().toLowerCase()

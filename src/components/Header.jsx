@@ -56,7 +56,7 @@ function Header() {
               </Link>
             )}
 
-            {user ? <button type="button" onClick={() => { signOut(); setMenuOpen(false); }} className="hidden border-b-2 border-transparent px-3 py-4 text-xs font-bold uppercase tracking-widest transition-colors hover:border-sun hover:bg-white/5 hover:text-sun lg:block lg:px-6" aria-label="Log out of demo account">Log out</button> : <Link to="/login" className="flex items-center justify-center border-x border-b-2 border-x-transparent border-b-transparent px-3 py-4 text-xs font-bold uppercase tracking-widest transition-colors duration-200 hover:border-b-sun/60 hover:bg-white/5 hover:text-sun focus-visible:bg-white/10 focus-visible:text-sun motion-reduce:transition-none lg:px-6">Log in</Link>}
+            {user ? <button type="button" onClick={() => { signOut(); setMenuOpen(false); }} className="hidden border-b-2 border-transparent px-3 py-4 text-xs font-bold uppercase tracking-widest transition-colors hover:border-sun hover:bg-white/5 hover:text-sun lg:block lg:px-6" aria-label="Log out of your account">Log out</button> : <Link to="/login" className="flex items-center justify-center border-x border-b-2 border-x-transparent border-b-transparent px-3 py-4 text-xs font-bold uppercase tracking-widest transition-colors duration-200 hover:border-b-sun/60 hover:bg-white/5 hover:text-sun focus-visible:bg-white/10 focus-visible:text-sun motion-reduce:transition-none lg:px-6">Log in</Link>}
 
             <button
               type="button"

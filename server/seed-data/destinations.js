@@ -1,9 +1,9 @@
-import photo0 from '../front-end/assets/Photos/japan.jpeg';
-import photo1 from '../front-end/assets/Photos/argentina.jpeg';
-import photo2 from '../front-end/assets/Photos/moroco.jpeg';
-import photo3 from '../front-end/assets/Photos/bali.jpeg';
-import photo4 from '../front-end/assets/Photos/italy.jpeg';
-import photo5 from '../front-end/assets/Photos/greece.jpeg';
+const photo0 = "/images/japan.jpeg";
+const photo1 = "/images/argentina.jpeg";
+const photo2 = "/images/moroco.jpeg";
+const photo3 = "/images/bali.jpeg";
+const photo4 = "/images/italy.jpeg";
+const photo5 = "/images/greece.jpeg";
 
 export const destinations = [
   {
@@ -170,7 +170,7 @@ export const destinations = [
       "Waterfalls, black-sand shores, and geothermal calm beneath immense skies.",
     dates: ["2026-03-01", "2026-06-06", "2026-10-24"],
   },
-]
+];
 
 export const destinationCategories = [
   "All Destinations",
@@ -178,4 +178,4 @@ export const destinationCategories = [
   "Adventure",
   "City",
   "Nature",
-]
+];

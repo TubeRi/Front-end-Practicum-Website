@@ -1,8 +1,9 @@
 import { Link } from 'react-router';
-import { destinations } from '../data/destinations';
-import { testimonials } from '../data/testimonials';
+import { useCatalog } from '../context/CatalogContext';
+import { useReviews } from '../context/ReviewsContext';
 import FeaturedJourney from './FeaturedJourney';
-export default function MainContent({onPlan}) { return <>      <section
+export default function MainContent({onPlan}) {
+  const { destinations } = useCatalog(); const { reviews: testimonials } = useReviews(); return <>      <section
         id="about"
         className="scroll-mt-20 border-b border-line bg-canvas"
       >

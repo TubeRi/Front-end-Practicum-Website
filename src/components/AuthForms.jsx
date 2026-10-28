@@ -1,35 +1,42 @@
-import { demoLoginEnabled, demoAdmin, demoAdminPassword } from '../services/demoAuth';
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { getAuthReturnPath } from "../services/authNavigation";
 
 const fieldClass =
-  "mt-2 h-12 w-full border border-line bg-white px-4 text-sm text-ink outline-none transition-colors focus:border-moss focus:ring-1 focus:ring-moss"
+  "mt-2 h-12 w-full border border-line bg-white px-4 text-sm text-ink outline-none transition-colors focus:border-moss focus:ring-1 focus:ring-moss";
 
 export default function AuthForms() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = getAuthReturnPath(searchParams.get("returnTo"));
-  const [mode, setMode] = useState("login")
+  const [mode, setMode] = useState("login");
   const [state, setState] = useState({});
   const [pending, setPending] = useState(false);
-  const isLogin = mode === 'login';
+  const isLogin = mode === "login";
   async function submit(event) {
     event.preventDefault();
     setPending(true);
     setState({});
     try {
-      const result = await signIn(mode, Object.fromEntries(new FormData(event.currentTarget)));
+      const result = await signIn(
+        mode,
+        Object.fromEntries(new FormData(event.currentTarget)),
+      );
       if (result.authenticated) {
         navigate(returnTo, { replace: true });
       } else {
-        setState({error: result.message || "Login is unavailable. Please try again later."});
+        setState({
+          error:
+            result.message || "Login is unavailable. Please try again later.",
+        });
       }
-    } catch {
-      setState({error: 'Account access is unavailable. Please try again later.'});
-    } finally { setPending(false); }
+    } catch (issue) {
+      setState({ error: issue.message });
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -43,7 +50,10 @@ export default function AuthForms() {
           type="button"
           role="tab"
           aria-selected={isLogin}
-          onClick={() => { setMode("login"); setState({}); }}
+          onClick={() => {
+            setMode("login");
+            setState({});
+          }}
           className={`flex-1 border-b-2 px-4 py-3 text-xs font-bold uppercase tracking-widest ${
             isLogin ? "border-moss text-ink" : "border-transparent text-muted"
           }`}
@@ -54,7 +64,10 @@ export default function AuthForms() {
           type="button"
           role="tab"
           aria-selected={!isLogin}
-          onClick={() => { setMode("signup"); setState({}); }}
+          onClick={() => {
+            setMode("signup");
+            setState({});
+          }}
           className={`flex-1 border-b-2 px-4 py-3 text-xs font-bold uppercase tracking-widest ${
             !isLogin ? "border-moss text-ink" : "border-transparent text-muted"
           }`}
@@ -63,8 +76,9 @@ export default function AuthForms() {
         </button>
       </div>
 
-      <p className="mb-5 text-sm text-muted">{demoLoginEnabled ? 'Local demo login is enabled. Use the temporary account below; no real authentication or data submission occurs.' : 'Frontend preview: accounts are not connected. Details are not sent or saved.'}</p>
-      {demoLoginEnabled && isLogin && <div className="mb-6 border border-line bg-sand/50 p-4 text-sm"><p className="font-bold">Temporary demo admin</p><p className="mt-2 break-all">Email: {demoAdmin.email}</p><p className="mt-1 break-all">Password: {demoAdminPassword}</p></div>}
+      <p className="mb-5 text-sm text-muted">
+        Sign in to save your trips and share your stories.
+      </p>
       <form onSubmit={submit} key={mode}>
         {!isLogin && (
           <label className="block text-sm font-bold">
@@ -123,5 +137,5 @@ export default function AuthForms() {
         </button>
       </form>
     </div>
-  )
+  );
 }

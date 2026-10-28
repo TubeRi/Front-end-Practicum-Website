@@ -47,4 +47,4 @@ export const testimonials = [
     initials: "SL",
     rating: "4.9",
   },
-]
+];

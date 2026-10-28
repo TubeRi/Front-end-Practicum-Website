@@ -1,44 +1,55 @@
-import { createContext, useContext, useState } from 'react';
-import { authenticate } from '../services/integrations';
-import { demoAdmin, demoLoginEnabled, demoSessionKey } from '../services/demoAuth';
-
+import { createContext, useContext, useEffect, useState } from "react";
+import { api, authenticate } from "../services/integrations";
 const AuthContext = createContext(null);
-
-function restoreDemoSession() {
-  if (!demoLoginEnabled || typeof window === 'undefined') return null;
-  try { return sessionStorage.getItem(demoSessionKey) === 'admin' ? demoAdmin : null; }
-  catch { return null; }
-}
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(restoreDemoSession);
-
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let active = true;
+    api("/auth/get-session")
+      .then((session) => {
+        if (active) setUser(session?.user || null);
+      })
+      .catch((issue) => {
+        if (active) setError(issue.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
   async function signIn(mode, credentials) {
     const result = await authenticate(mode, credentials);
-    const authenticated = Boolean(result.user?.id && (result.connected === true || (demoLoginEnabled && result.demo === true)));
-    if (authenticated) {
-      setUser(result.user);
-      if (result.demo) {
-        try { sessionStorage.setItem(demoSessionKey, 'admin'); } catch { /* In-memory login still works. */ }
-      }
+    setUser(result.user);
+    setError("");
+    return { ...result, authenticated: Boolean(result.user?.id) };
+  }
+  async function signOut() {
+    try {
+      await api("/auth/sign-out", { method: "POST", body: "{}" });
+      setUser(null);
+      setError("");
+    } catch (issue) {
+      setError("Sign out failed. Please try again.");
     }
-    return { ...result, authenticated };
   }
-
-  function signOut() {
-    setUser(null);
-    try { sessionStorage.removeItem(demoSessionKey); } catch { /* No stored session to clear. */ }
-  }
-
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, error, signIn, signOut }}>
+      {error && (
+        <p
+          role="alert"
+          className="fixed bottom-3 left-3 z-[100] max-w-sm border border-line bg-white p-4 text-sm text-red-800"
+        >
+          {error}
+        </p>
+      )}
       {children}
     </AuthContext.Provider>
   );
 }
-
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used inside AuthProvider');
-  return context;
+  return useContext(AuthContext);
 }

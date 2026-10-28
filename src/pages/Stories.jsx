@@ -1,22 +1,28 @@
-import { useState } from 'react';
-import ReviewSection from '../components/ReviewSection';
-import { testimonials } from '../data/testimonials';
-import Testimonial from '../components/Testimonial';
+import { useReviews } from "../context/ReviewsContext";
+import ReviewSection from "../components/ReviewSection";
+
+import Testimonial from "../components/Testimonial";
 function StoriesPage() {
+  const {
+    reviews: testimonials,
+    loading,
+    error,
+    reload,
+    addReview: saveReview,
+  } = useReviews();
   const featured = testimonials[0];
-  const [addedReviews, setAddedReviews] = useState([]);
-  const recentReviews = [...addedReviews, ...testimonials.slice(1)];
-
+  const recentReviews = testimonials.slice(1);
   function addReview(review) {
-    setAddedReviews(current => [review, ...current]);
-    requestAnimationFrame(() => document.getElementById('recent-reviews')?.scrollIntoView({ block: 'start' }));
+    saveReview(review);
+    requestAnimationFrame(() =>
+      document
+        .getElementById("recent-reviews")
+        ?.scrollIntoView({ block: "start" }),
+    );
   }
-
   return (
     <>
       <main className="min-h-screen bg-canvas text-ink">
-
-
         <section className="border-b border-line px-5 py-16 sm:px-6 sm:py-20 lg:px-10 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <p className="mb-5 text-xs font-bold uppercase tracking-widest text-moss">
@@ -31,7 +37,6 @@ function StoriesPage() {
                 into an experience they’ll carry with them.
               </p>
             </div>
-
 
             <div className="mt-16 grid gap-px bg-line sm:grid-cols-3">
               <div className="bg-canvas py-6 sm:px-6 sm:first:pl-0">
@@ -57,10 +62,22 @@ function StoriesPage() {
         </section>
 
         <section className="bg-ink px-5 py-16 text-white sm:px-6 sm:py-20 lg:px-10 lg:py-28">
-          <Testimonial testimonial={featured} featured />
+          {featured && <Testimonial testimonial={featured} featured />}
+          {loading && <p role="status">Loading reviews…</p>}
+          {error && (
+            <div role="alert">
+              {error}{" "}
+              <button onClick={reload} className="underline">
+                Try again
+              </button>
+            </div>
+          )}
         </section>
 
-        <section id="recent-reviews" className="scroll-mt-24 px-5 py-16 sm:px-6 sm:py-20 lg:px-10 lg:py-28">
+        <section
+          id="recent-reviews"
+          className="scroll-mt-24 px-5 py-16 sm:px-6 sm:py-20 lg:px-10 lg:py-28"
+        >
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 flex items-end justify-between border-b border-line pb-6">
               <div>
@@ -76,17 +93,19 @@ function StoriesPage() {
 
             <div className="grid gap-px bg-line md:grid-cols-2">
               {recentReviews.map((testimonial) => (
-                <Testimonial key={testimonial.id || testimonial.name} testimonial={testimonial} />
+                <Testimonial
+                  key={testimonial.id || testimonial.name}
+                  testimonial={testimonial}
+                />
               ))}
             </div>
           </div>
         </section>
 
-
         <ReviewSection onReviewAdded={addReview} />
       </main>
     </>
-  )
+  );
 }
 
-export default StoriesPage
+export default StoriesPage;

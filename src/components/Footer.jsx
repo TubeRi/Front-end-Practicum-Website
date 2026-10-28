@@ -61,7 +61,7 @@ function Footer() {
         </div>
       </div>
       <div className="mx-auto mt-10 max-w-7xl border-t border-line pt-5 text-xs text-muted">
-        © 2026 TravelPoint. Frontend demonstration—no real bookings or payments.
+        © 2026 TravelPoint. Course project. Booking requests are saved; payments are not processed.
       </div>
     </footer>
   )

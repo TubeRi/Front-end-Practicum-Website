@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "react-router"
-import { destinationCategories, destinations } from "../data/destinations"
+import { useCatalog } from '../context/CatalogContext';
 import DestinationCard from "./DestinationCard"
 import FilterBar from "./FilterBar"
 
 function DestinationGrid() {
+  const { destinations, destinationCategories } = useCatalog();
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeCategory, setActiveCategory] = useState("All Destinations")
   const [searchTerm, setSearchTerm] = useState(
@@ -41,7 +42,7 @@ function DestinationGrid() {
       if (sortOrder === "rating") return second.rating - first.rating
       return 0
     })
-  }, [activeCategory, searchTerm, sortOrder, duration])
+  }, [destinations, activeCategory, searchTerm, sortOrder, duration])
 
   const resetFilters = () => {
     setActiveCategory("All Destinations")
@@ -60,7 +61,7 @@ function DestinationGrid() {
           <div className="mb-7 border border-line bg-sand/50 p-4 text-sm" aria-label="Your travel preferences">
             <p className="font-bold">Your travel preferences</p>
             <p className="mt-2">{adults} adults · {children} {children === 1 ? "child" : "children"}{duration !== 'Any length' ? ' · ' + duration : ''}{departure ? ' · ' + departure + (returnDate ? ' to ' + returnDate : '') + ' · ' + flexibility : ''}</p>
-            <p className="mt-2 text-muted">Dates are preferences for this frontend demo. Live availability and age-specific pricing are not connected. Card totals use the standard per-person demo price.</p>
+            <p className="mt-2 text-muted">Search dates are preferences. Choose an available departure when booking. Prices use the standard per-person rate for every traveler.</p>
           </div>
         )}
         <FilterBar

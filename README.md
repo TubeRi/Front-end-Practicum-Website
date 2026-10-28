@@ -1,91 +1,93 @@
 # TravelPoint
 
-Travel agency frontend built with React, Vite, and Tailwind CSS. The interface follows the exported Figma Make design, adapted to React Router without Next.js or a CMS.
+Travel agency course project using React, Vite, Tailwind CSS, React Router, Express, PostgreSQL, and Better Auth. The frontend keeps the existing design. Accounts, profile details, booking requests, payment preferences, and reviews now use the backend.
 
-## Run locally
+## First setup
 
-Requires Node.js 20.19+ or 22.12+.
+Use Node.js 22.12+ (Node 24 recommended).
 
-```sh
-npm install
-npm run dev
-npm run build
-npm run preview
-```
+1. Install dependencies with npm install.
+2. Create a free project in https://console.neon.tech (or use another PostgreSQL provider). Select its connection dialog and copy the PostgreSQL connection string. Never share it publicly.
+3. Copy .env.example to .env **only if .env does not already exist**. A local .env with a generated authentication secret may already be present. Fill DATABASE_URL with the actual connection string, retaining the provider's TLS options. Keep APP_ORIGIN=http://localhost:5173 for local development. Generate a secret if needed with node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))" and save it as BETTER_AUTH_SECRET.
+4. Run npm run db:setup. This creates Better Auth's tables, the application schema, and seeds the catalog and editorial testimonials. Running it again preserves accounts, bookings, and user reviews.
+5. Run npm run dev. This starts the API on port 4000 and Vite on http://localhost:5173. Use this address, not Live Server or a directly opened dist/index.html.
+6. Open Log in, choose Create account, and register your own account. The previous temporary admin credentials have been removed. No shared administrator account is built in.
 
-Edit `src/`; `dist/` is generated build output. Use the Vite address instead of Live Server.
+.env and .env.* are ignored by Git, except .env.example. DATABASE_URL and BETTER_AUTH_SECRET are server-only: never prefix them with VITE_, which exposes values to the browser. No real hosted database has been provisioned until the connection is supplied and db:setup succeeds.
 
-## Frontend features
+## Commands
 
-- Responsive shared navigation, homepage destination picker, and login/signup presentation.
-- Searchable country list, date-range calendar, date flexibility, length-of-stay choices, adult/child counters.
-- Ten local destination records with category/search/duration filtering, price/rating sorting, and empty states.
-- Independent controlled traveler steppers with live euro totals and a booking summary dialog.
-- Separate testimonial components and data, shared footer, and trip-planning dialog.
+| Command | Purpose |
+| --- | --- |
+| npm run dev | Run API and frontend together |
+| npm run dev:client | Frontend only; requires a running API |
+| npm run dev:server | Backend with restart on changes |
+| npm run db:setup | Create schema and seed PostgreSQL |
+| npm run build | Build React into dist/ |
+| npm start | Serve the built frontend and API together |
+| npm test | Integration checks with a disposable local PostgreSQL engine |
 
-The first six photos use existing local assets. The hero and four new destination photos reference the URLs in the Figma source.
+For production, build first and set NODE_ENV=production, APP_ORIGIN to the site's HTTPS origin, PORT to the backend port, and the server secrets in the host's environment. Serve through an HTTPS reverse proxy forwarding /api, /images, assets, and page routes to this server. The default server binds to localhost; configure HOST=0.0.0.0 when required by your hosting service. Set proxy trust only for your actual trusted proxy; do not blindly trust forwarded headers. Configure per-IP auth limits for your hosting arrangement before public launch. npm run preview only previews static assets and does not provide the backend.
 
-## Routes and structure
+## Project structure and rendering
 
-- `/`: `pages/Home.jsx`, composed of Hero, DestinationPicker, and MainContent.
-- `/about`: home alias. `/#about` scrolls to the homepage introduction.
-- `/destinations`: DestinationGrid, FilterBar, DestinationCard, QuantityStepper, and BookingModal.
-- `/stories`: testimonial page.
-- `/login`: login/signup UI only. `/account` is a protected personal profile with personal details, trips, and payment preferences.
-- `src/data/`: destination and testimonial arrays.
-- `src/services/integrations.js`: frontend-only integration boundaries.
+- src/main.jsx mounts React and wraps the app in BrowserRouter, AuthProvider, AccountProvider, CatalogProvider, and ReviewsProvider.
+- src/App.jsx selects a page using the URL and renders the shared Header and Footer. Home composes Hero, DestinationPicker, and MainContent.
+- src/context/AuthContext.jsx restores the server session on refresh. Login/signup call Better Auth; logout revokes the session. RequireAuth waits for session loading and redirects guests to login with a safe internal return URL.
+- src/context/CatalogContext.jsx loads destination objects from GET /api/destinations. Cards, the home grid, and the country picker use that shared response, rather than importing hardcoded JSX/data arrays.
+- src/components/DestinationGrid.jsx owns category, search, duration and sorting state. Each DestinationCard reuses the controlled QuantityStepper.
+- src/context/AccountContext.jsx loads only the signed-in user's profile, trips, payment preferences and reviews. ProfileForm, TripHistory, PaymentPreferences, and MyReviews each handle one section.
+- src/context/ReviewsContext.jsx loads the public review wall. A successful submission adds the server's review immediately and refreshes the personal account data. The form is entirely hidden for guests.
+- src/services/integrations.js is the shared fetch boundary. Cookies travel with requests; passwords/session tokens are not put in localStorage or sessionStorage.
+- src/index.css and Tailwind utility classes provide the styling. Vite proxies /api and /images to the backend during development.
+- server/app.js contains the JSON routes, validation, access control and static serving.
+- server/auth.js configures Better Auth email/password authentication and seven-day sessions.
+- server/schema.sql defines the application tables. server/migrate.js runs the authentication library migrations first.
+- server/seed-data/ holds the original destination and editorial testimonial arrays, used only by server/seed.js. The first six photos remain in the existing photo folder and are served at /images. Future sample departures are added for next year so the sample catalog remains bookable.
 
-Configure production hosting to fall back to `index.html` for application routes. If deploying under a subdirectory, adjust Vite base and router basename together.
+## Database tables
 
-## Backend integration points - deliberately unconnected
+| Table | Stored information |
+| --- | --- |
+| user, account, session, verification | Better Auth owns accounts, password hashes, sessions and verification records |
+| destinations | Catalog descriptions, photos, categories, prices, durations |
+| departures | Available dates for each destination |
+| profiles | Address, hobbies, travel style and other personal details, linked to user |
+| bookings | User, destination, dates, traveler count, trusted total, contact details, unpaid status and payment preference nickname |
+| payment_preferences | User-owned payment type/nickname and preferred choice; no card numbers or bank credentials |
+| reviews | Public name, rating, review and server posting date, linked to the author's account; original editorial entries have no account owner |
 
-There are no server routes, database, CMS, account sessions, authentication provider, payments, or network submission calls in this project.
+Foreign keys link records to users. SQL values are parameterized. The backend derives ownership from the verified session rather than a user ID supplied by the browser. Prices and trip length come from the database, and only available future departures can be requested. Repeating a booking request with the same request ID does not duplicate it. Original editorial testimonials remain distinct from new user reviews.
 
-`src/services/integrations.js` names proposed endpoint contracts only:
+## API routes
 
-| Adapter | Proposed future endpoint | Current behavior |
-|---|---|---|
-| `authenticate(mode, credentials)` | `/api/auth/login`, `/api/auth/signup` | Returns an explicit not-connected message; does not transmit or persist credentials |
-| `requestBooking(details)` | `/api/bookings` | Returns a demo result; no reservation, email, payment, or storage |
-| Trip planner boundary | `/api/trip-requests` | Planner currently creates an in-memory summary; no request is sent |
+| Method and route | Access / behavior |
+| --- | --- |
+| GET /api/health | Database connectivity status |
+| GET /api/destinations | Public JSON catalog and categories |
+| GET /api/reviews | Public editorial stories and user reviews |
+| POST /api/auth/sign-up/email | Register and sign in |
+| POST /api/auth/sign-in/email | Email/password login |
+| GET /api/auth/get-session | Restore current signed-in state |
+| POST /api/auth/sign-out | Revoke session |
+| GET /api/account | Current user's profile, trips, preferences and reviews |
+| PUT /api/profile | Save current user's details |
+| POST /api/bookings | Save an unpaid booking request |
+| POST /api/reviews | Publish a review linked to the current user |
+| POST /api/payment-preferences | Add a method type and nickname |
+| PUT /api/payment-preferences/:id/default | Select own preferred method |
+| DELETE /api/payment-preferences/:id | Remove own preference |
 
-A future backend can replace the adapter internals after defining validation, authentication, error responses, and data contracts. These paths are placeholders, not functioning APIs.
+All custom writes require the configured same-origin request. Authenticated routes return 401 for guests. Cookie sessions are managed by Better Auth; production requires HTTPS. Responses containing account data are not cached.
 
-Picker dates and flexibility are carried to the results as preferences, not claimed live availability. Duration filters use journey days minus one as nights. Demo totals use the same per-person price for adults and children; no age-specific fare service is connected. Figma's sample departure dates are preserved and labeled as sample dates in the booking dialog.
+## What persists and what is not connected
 
-No personal form values are saved to localStorage, cookies, or a database.
+Refresh or sign out and sign back in: your profile, bookings, payment preferences and reviews are read back from PostgreSQL. Your reviews remain on the public Stories wall and are also shown in My reviews. Upcoming and past trips are grouped by trip end date in Europe/Vilnius. Displayed review dates use that same timezone; creation timestamps come from the server.
 
-## Login requirement for booking
+Bookings are stored as **unpaid booking requests**, not supplier-confirmed reservations. No payment provider, card tokenization, charge, booking email, password-reset email, or email verification delivery is configured. Payment preferences are only method names and nicknames. The separate trip-ideas planner still creates an unsaved planning summary; use a destination's booking button to save a trip.
 
-Guests can browse and filter journeys, but must log in before opening `/book/:destinationId`. Card actions redirect to `/login?returnTo=...`, preserving the selected journey and traveler count. The login page returns to that route only when the authentication adapter returns `{ connected: true, user: { id, ... } }` after a verified login. Return targets are restricted to internal booking routes.
+## Verification
 
-`AuthProvider` owns the in-memory frontend user state. The current authentication adapter always reports disconnected, so no one can proceed to booking in this frontend preview. There is no pretend login or localStorage authentication flag. Booking submission also rejects a missing user.
+npm test exercises real Better Auth signup, password hashing, failed login, sessions, logout/relogin, idempotent seeding, JSON catalog, profile persistence, booking idempotency, server-calculated prices, rejected past dates, public review persistence and server timestamps, guest rejection, origin checks, and isolation between two users. It uses PGlite, a disposable local PostgreSQL engine, through a test-only adapter. This does not prove a hosted Neon connection: run db:setup and the application against your actual DATABASE_URL to verify that deployment.
 
-The future backend must verify its session and authorize every booking/payment request independently; React route guards are navigation behavior, not server-side security. Restore verified sessions through a backend adapter when authentication is connected. No payment or purchase backend is implemented.
-
-## Login requirement for testimonials
-
-Stories renders ReviewSection at the bottom only when AuthContext contains a user ID. Guests receive no form, review-section heading, or login reminder. The old /stories/write route redirects to /stories#write-review; it no longer offers a separate writing page.
-
-Signed-in users can enter a display name, a rating from 1 to 5, and a review of 20-1,500 characters. Submission captures an ISO timestamp; previews display its date in the Europe/Vilnius timezone. That date stays attached to the preview rather than changing when read later. Display names do not establish account identity: the future backend must derive authorship from its verified session.
-
-The unconnected requestTestimonial adapter returns only a demo result. Submitted reviews are immediately prepended to the Stories review grid with their name, rating, text, and submission date. There is no separate preview step. They remain in page state only; navigating away or refreshing discards them, and no server publication occurs. Authentication remains unconnected, so the section is currently hidden to all guests. A future backend must authorize and validate review submissions and supply its own trusted creation timestamp.
-
-## Temporary demo admin - local development only
-
-Run `npm run dev` and open `/login`.
-
-- Email: `admin@travelpoint.test`
-- Password: `TravelPointDemo!28`
-
-These are public test credentials, not real secrets. The account is enabled only by Vite's development mode (`import.meta.env.DEV`), and is disabled in `npm run build` / `npm run preview`. It has no server privileges and unlocks only frontend booking/review previews. The login page shows the credentials while development mode is enabled.
-
-A sessionStorage marker keeps the demo login across refreshes in that tab. Passwords are never saved. Use Log out in the header to clear the demo session; a new unrelated tab starts logged out. This explicitly requested demo mode is not security or real authentication. Production authentication still requires a backend.
-
-## Personal profile and payment preferences
-
-Logged-in users have a separate profile icon in the header linking to the protected `/account` page. The page contains editable name, address, contact details, hobbies, biography, and travel style; read-only authentication email; Upcoming and Past trip tabs; and payment preferences with add/remove/default actions.
-
-AccountProvider owns this account's in-memory data, keyed by user ID. Data survives navigation but resets on refresh or logout and is not written to localStorage or a backend. Demo login itself can survive refresh independently. New sessions have empty trip history rather than invented bookings. Submitted booking demos append an explicitly unpaid request, grouped by trip end date relative to the current date in Europe/Vilnius.
-
-Payment preferences contain only a method type and a nickname. Supported types are card, PayPal, Apple Pay, Google Pay, and bank transfer. No card numbers, CVV, bank credentials, or wallet credentials are collected. The preferred choice appears in the booking form and is recorded as a preference on a demo trip; it never marks a trip as paid. Actual payment-method tokenization and payment confirmation require a future payment provider/backend and are deliberately unconnected.
+Browser QA may use server/tests/browser-server.js for an explicitly disposable test API. It is never used by npm run dev or npm start and all its data disappears when stopped.
