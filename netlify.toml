@@ -1,0 +1,24 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["better-auth", "pg", "express", "serverless-http", "helmet", "express-rate-limit", "zod", "dotenv"]
+
+# Keep API requests out of the React HTML fallback.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# Let React Router handle direct links and page refreshes.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -61,7 +61,7 @@ const serializeReview = (row) => ({
 const issue = (status, message) =>
   Object.assign(new Error(message), { status });
 
-export function createApp({ pool, auth, config }) {
+export function createApp({ pool, auth, config, serveStatic = true }) {
   const app = express();
   const allowedOrigins = trustedOrigins(config.origin);
   app.disable("x-powered-by");
@@ -282,18 +282,22 @@ export function createApp({ pool, auth, config }) {
   app.use("/api", (req, res) =>
     res.status(404).json({ message: "API route not found." }),
   );
-  app.use(
-    "/images",
-    express.static(
-      fileURLToPath(new URL("../src/front-end/assets/Photos", import.meta.url)),
-    ),
-  );
-  const dist = fileURLToPath(new URL("../dist/", import.meta.url));
-  if (existsSync(dist)) {
-    app.use(express.static(dist));
-    app.get("/{*path}", (req, res) =>
-      res.sendFile("index.html", { root: dist }),
+  if (serveStatic) {
+    app.use(
+      "/images",
+      express.static(
+        fileURLToPath(
+          new URL("../src/front-end/assets/Photos", import.meta.url),
+        ),
+      ),
     );
+    const dist = fileURLToPath(new URL("../dist/", import.meta.url));
+    if (existsSync(dist)) {
+      app.use(express.static(dist));
+      app.get("/{*path}", (req, res) =>
+        res.sendFile("index.html", { root: dist }),
+      );
+    }
   }
   app.use((error, req, res, next) => {
     if (error instanceof z.ZodError)
