@@ -279,6 +279,15 @@ export function createApp({ pool, auth, config, serveStatic = true }) {
       res.status(201).json({ review: serializeReview(rows[0]) });
     },
   );
+  app.delete("/api/reviews/:id", async (req, res) => {
+    const id = text(80).min(1).parse(req.params.id);
+    const result = await pool.query(
+      "DELETE FROM reviews WHERE id=$1 AND user_id=$2 AND editorial=false RETURNING id",
+      [id, req.user.id],
+    );
+    if (!result.rowCount) throw issue(404, "Review not found.");
+    res.json({ id: result.rows[0].id });
+  });
   app.use("/api", (req, res) =>
     res.status(404).json({ message: "API route not found." }),
   );

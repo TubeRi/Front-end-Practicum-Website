@@ -29,9 +29,12 @@ export function ReviewsProvider({ children }) {
       ),
     ]);
   }
+  function removeReview(id) {
+    setReviews((current) => current.filter((review) => review.id !== id));
+  }
   return (
     <ReviewsContext.Provider
-      value={{ reviews, error, loading, reload, addReview }}
+      value={{ reviews, error, loading, reload, addReview, removeReview }}
     >
       {children}
     </ReviewsContext.Provider>

@@ -213,6 +213,47 @@ test("real auth, ownership, bookings and reviews survive logout/login", async (t
   assert.equal(account.profile.hobbies, "Hiking");
   assert.equal(account.trips.length, 1);
   assert.equal(account.reviews.length, 1);
+  const reviewPath = "/reviews/" + posted.data.review.id;
+  assert.equal((await request(reviewPath, { method: "DELETE" })).status, 401);
+  assert.equal(
+    (await request(reviewPath, { cookie: second.cookie, method: "DELETE" }))
+      .status,
+    404,
+  );
+  assert.ok(
+    (await request("/reviews")).data.reviews.some(
+      (review) => review.id === posted.data.review.id,
+    ),
+  );
+  assert.equal(
+    (
+      await request("/reviews/editorial-0", {
+        cookie: login.cookie,
+        method: "DELETE",
+      })
+    ).status,
+    404,
+  );
+  assert.equal(
+    (await request(reviewPath, { cookie: login.cookie, method: "DELETE" }))
+      .status,
+    200,
+  );
+  assert.equal(
+    (await request(reviewPath, { cookie: login.cookie, method: "DELETE" }))
+      .status,
+    404,
+  );
+  assert.equal(
+    (await request("/account", { cookie: login.cookie })).data.reviews.length,
+    0,
+  );
+  assert.equal(
+    (await request("/reviews")).data.reviews.some(
+      (review) => review.id === posted.data.review.id,
+    ),
+    false,
+  );
   assert.equal(account.trips[0].total, destination.price * 2);
   assert.equal(account.trips[0].status, "Booking request · unpaid");
   assert.equal(account.defaultPaymentId, method.id);

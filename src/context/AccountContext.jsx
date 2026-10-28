@@ -71,6 +71,13 @@ function AccountState({ user, children }) {
     await refreshAccount();
   }
   const saveProfile = (values) => change("/profile", "PUT", values);
+  async function deleteReview(id) {
+    await api("/reviews/" + encodeURIComponent(id), { method: "DELETE" });
+    setData((current) => ({
+      ...current,
+      reviews: current.reviews.filter((review) => review.id !== id),
+    }));
+  }
   const addPaymentMethod = (type, label) =>
     change("/payment-preferences", "POST", {
       type,
@@ -96,6 +103,7 @@ function AccountState({ user, children }) {
         error,
         refreshAccount,
         saveProfile,
+        deleteReview,
         addPaymentMethod,
         removePaymentMethod,
         setPreferredPayment,
