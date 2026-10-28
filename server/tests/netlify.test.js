@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import serverless from "serverless-http";
+import { createWebHandler } from "../netlify-handler.js";
 import { createApp } from "../app.js";
 import { createAuth } from "../auth.js";
 import { migrate } from "../migrate.js";
@@ -17,7 +17,7 @@ test("Netlify function returns API JSON and preserves auth cookies", async (t) =
   };
   await migrate(pool, config, database);
   await seed(pool);
-  const handler = serverless(
+  const handler = createWebHandler(
     createApp({
       pool,
       config,
@@ -26,23 +26,23 @@ test("Netlify function returns API JSON and preserves auth cookies", async (t) =
     }),
   );
   async function invoke(path, { method = "GET", body, cookie } = {}) {
-    return handler(
-      {
-        httpMethod: method,
-        path,
+    const response = await handler(
+      new Request(config.origin + path, {
+        method,
         headers: {
-          host: "travelpoint-test.netlify.app",
           origin: config.origin,
           "content-type": "application/json",
-          "x-forwarded-proto": "https",
           ...(cookie ? { cookie } : {}),
         },
-        body: body ? JSON.stringify(body) : null,
-        isBase64Encoded: false,
-        requestContext: { identity: { sourceIp: "127.0.0.1" } },
-      },
-      {},
+        ...(body ? { body: JSON.stringify(body) } : {}),
+      }),
+      { ip: "127.0.0.1" },
     );
+    return {
+      statusCode: response.status,
+      body: await response.text(),
+      multiValueHeaders: { "set-cookie": response.headers.getSetCookie() },
+    };
   }
   const health = await invoke("/api/health");
   assert.equal(health.statusCode, 200);
