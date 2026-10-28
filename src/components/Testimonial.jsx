@@ -1,3 +1,4 @@
+import { formatReviewDate } from '../services/reviews';
 export default function Testimonial({testimonial, featured=false}) { if(featured) return (<figure className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.45fr_1fr]">
             <figcaption className="flex items-start gap-4">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-sun font-bold text-ink">
@@ -6,7 +7,7 @@ export default function Testimonial({testimonial, featured=false}) { if(featured
               <span>
                 <strong className="block">{testimonial.name}</strong>
                 <span className="mt-1 block text-sm text-white/50">
-                  {testimonial.trip}
+                  {testimonial.createdAt ? <time dateTime={testimonial.createdAt}>{formatReviewDate(testimonial.createdAt)}</time> : testimonial.trip}
                 </span>
               </span>
             </figcaption>
@@ -20,7 +21,7 @@ export default function Testimonial({testimonial, featured=false}) { if(featured
                   <div>
                     <div className="mb-7 flex items-center justify-between">
                       <span className="text-xs font-bold uppercase tracking-widest text-moss">
-                        {testimonial.trip}
+                        {testimonial.createdAt ? <time dateTime={testimonial.createdAt}>{formatReviewDate(testimonial.createdAt)}</time> : testimonial.trip}
                       </span>
                       <span className="text-sm font-bold">
                         {testimonial.rating} / 5

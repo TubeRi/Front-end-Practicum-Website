@@ -1,5 +1,6 @@
 import { useState } from "react"
-import BookingModal from "./BookingModal"
+import { useNavigate } from "react-router"
+import { useAuth } from "../context/AuthContext"
 import QuantityStepper from "./QuantityStepper"
 
 const euro = new Intl.NumberFormat("en-IE", {
@@ -10,7 +11,10 @@ const euro = new Intl.NumberFormat("en-IE", {
 
 function DestinationCard({ destination, initialTravelers = 1 }) {
   const [travelers, setTravelers] = useState(initialTravelers)
-  const [detailsOpen, setDetailsOpen] = useState(false)
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const bookingPath = '/book/' + destination.id + '?travelers=' + travelers;
+  const startBooking = () => navigate(user ? bookingPath : '/login?returnTo=' + encodeURIComponent(bookingPath));
   const totalPrice = destination.price * travelers
 
   return (
@@ -76,10 +80,10 @@ function DestinationCard({ destination, initialTravelers = 1 }) {
 
           <button
             type="button"
-            onClick={() => setDetailsOpen(true)}
+            onClick={startBooking}
             className="group/button mt-6 flex w-full cursor-pointer items-center justify-between bg-ink px-5 py-4 font-bold text-white outline-none transition-colors hover:bg-moss focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
           >
-            View details & book
+            {user ? "Book this trip" : "Log in to book"}
             <span
               className="text-sun transition-transform group-hover/button:translate-x-1"
               aria-hidden="true"
@@ -90,14 +94,6 @@ function DestinationCard({ destination, initialTravelers = 1 }) {
         </div>
       </article>
 
-      {detailsOpen && (
-        <BookingModal
-          destination={destination}
-          travelers={travelers}
-          onTravelersChange={setTravelers}
-          onClose={() => setDetailsOpen(false)}
-        />
-      )}
     </>
   )
 }

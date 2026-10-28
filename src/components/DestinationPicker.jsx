@@ -257,10 +257,7 @@ export default function DestinationPicker() {
       aria-labelledby="destination-picker-title"
     >
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 grid gap-3 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-moss">
-            Start with a place
-          </p>
+        <div className="mb-8 text-center">
           <div>
             <h2
               id="destination-picker-title"
@@ -268,7 +265,7 @@ export default function DestinationPicker() {
             >
               Where would you like to go?
             </h2>
-            <p className="mt-3 max-w-2xl leading-relaxed text-muted">
+            <p className="mx-auto mt-3 max-w-2xl leading-relaxed text-muted">
               Choose a destination, a date, and who is traveling. We’ll show you
               journeys that fit.
             </p>

@@ -1,10 +1,17 @@
+import { demoLoginEnabled, demoAdmin, demoAdminPassword } from '../services/demoAuth';
 import { useState } from "react";
-import { authenticate } from "../services/integrations";
+import { useNavigate, useSearchParams } from "react-router";
+import { useAuth } from "../context/AuthContext";
+import { getAuthReturnPath } from "../services/authNavigation";
 
 const fieldClass =
   "mt-2 h-12 w-full border border-line bg-white px-4 text-sm text-ink outline-none transition-colors focus:border-moss focus:ring-1 focus:ring-moss"
 
 export default function AuthForms() {
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = getAuthReturnPath(searchParams.get("returnTo"));
   const [mode, setMode] = useState("login")
   const [state, setState] = useState({});
   const [pending, setPending] = useState(false);
@@ -14,8 +21,12 @@ export default function AuthForms() {
     setPending(true);
     setState({});
     try {
-      const result = await authenticate(mode, Object.fromEntries(new FormData(event.currentTarget)));
-      setState({error: result.message});
+      const result = await signIn(mode, Object.fromEntries(new FormData(event.currentTarget)));
+      if (result.authenticated) {
+        navigate(returnTo, { replace: true });
+      } else {
+        setState({error: result.message || "Login is unavailable. Please try again later."});
+      }
     } catch {
       setState({error: 'Account access is unavailable. Please try again later.'});
     } finally { setPending(false); }
@@ -52,7 +63,8 @@ export default function AuthForms() {
         </button>
       </div>
 
-      <p className="mb-5 text-sm text-muted">Frontend preview: accounts are not connected. Details are not sent or saved.</p>
+      <p className="mb-5 text-sm text-muted">{demoLoginEnabled ? 'Local demo login is enabled. Use the temporary account below; no real authentication or data submission occurs.' : 'Frontend preview: accounts are not connected. Details are not sent or saved.'}</p>
+      {demoLoginEnabled && isLogin && <div className="mb-6 border border-line bg-sand/50 p-4 text-sm"><p className="font-bold">Temporary demo admin</p><p className="mt-2 break-all">Email: {demoAdmin.email}</p><p className="mt-1 break-all">Password: {demoAdminPassword}</p></div>}
       <form onSubmit={submit} key={mode}>
         {!isLogin && (
           <label className="block text-sm font-bold">

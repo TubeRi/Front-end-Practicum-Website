@@ -1,5 +1,8 @@
+import { Link } from 'react-router';
+import { useAccount } from '../context/AccountContext';
 import { useEffect, useRef, useState } from "react"
 import { requestBooking } from "../services/integrations"
+import { useAuth } from "../context/AuthContext"
 import QuantityStepper from "./QuantityStepper"
 
 const euro = new Intl.NumberFormat("en-IE", {
@@ -12,11 +15,14 @@ const fieldClass =
   "mt-2 h-12 w-full border border-line bg-white px-4 text-sm text-ink outline-none transition-colors focus:border-moss focus:ring-1 focus:ring-moss"
 
 function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
+  const { user } = useAuth();
+  const { profile, paymentMethods, defaultPaymentId, addTrip } = useAccount();
+  const [paymentMethodId, setPaymentMethodId] = useState(defaultPaymentId);
   const dialogRef = useRef(null);
   const [pending, setPending] = useState(false);
   const [travelDate, setTravelDate] = useState(destination.dates[0])
-  const [customerName, setCustomerName] = useState("")
-  const [email, setEmail] = useState("")
+  const [customerName, setCustomerName] = useState(profile.name)
+  const [email, setEmail] = useState(profile.email)
   const [errors, setErrors] = useState({})
   const [submitted, setSubmitted] = useState(false)
   const totalPrice = destination.price * travelers
@@ -55,10 +61,12 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!user) { setErrors({submission: "Please log in before booking this trip."}); return; }
     if (!validate()) return;
     setPending(true);
     try {
-      await requestBooking({destinationId: destination.id, travelDate, travelers, customerName, email});
+      await requestBooking({destinationId: destination.id, travelDate, travelers, customerName, email}, user);
+      addTrip(destination, travelDate, travelers, paymentMethodId);
       setSubmitted(true);
     } catch { setErrors({submission: 'Unable to prepare the demo summary. Please try again.'}); }
     finally { setPending(false); }
@@ -106,7 +114,7 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
               Your {destination.name} trip summary is ready.
             </h2>
             <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted">
-              No reservation or email has been sent. No payment was taken and no personal information has been stored.
+              No reservation, email, or payment has been sent. Your unpaid demo request is now available in My trips for this session.
             </p>
             <div className="mx-auto mt-7 max-w-md border-y border-line py-5 text-sm">
               <div className="flex justify-between gap-4">
@@ -118,6 +126,7 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
                 <strong>{euro.format(totalPrice)}</strong>
               </div>
             </div>
+            <Link to="/account#my-trips" className="mt-6 inline-block border-b border-ink text-sm font-bold">View My trips</Link>
             <button
               type="button"
               onClick={onClose}
@@ -171,7 +180,7 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="p-5 sm:p-7">
-              <p className="mb-5 text-sm text-muted">Frontend demonstration. Submit to preview a summary; no booking is created.</p>
+              <p className="mb-5 text-sm text-muted">Frontend demonstration. Your request will appear in My trips as unpaid; no real reservation or payment is made.</p>
               {errors.submission && <p role="alert">{errors.submission}</p>}
               <p className="text-xs font-bold uppercase tracking-widest text-moss">
                 Booking request
@@ -179,7 +188,7 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
               <h3 className="mt-2 font-display text-3xl">Choose your place</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted">
                 Submit a no-obligation request. This frontend demonstration does
-                not process payments or save bookings.
+                not process payments. Demo requests are kept only for this session.
               </p>
 
               <label className="mt-6 block text-sm font-bold">
@@ -281,6 +290,16 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
                 </label>
               </div>
 
+              <div className="mt-6">
+                <label htmlFor="booking-payment" className="block text-sm font-bold">Preferred payment method (for later)
+                  <select id="booking-payment" value={paymentMethodId} onChange={event => setPaymentMethodId(event.target.value)} className={fieldClass}>
+                    <option value="">Choose later</option>
+                    {paymentMethods.map(method => <option key={method.id} value={method.id}>{method.label}</option>)}
+                  </select>
+                </label>
+                <p className="mt-2 text-xs text-muted">Preference only. This does not confirm payment. <Link to="/account#payment-methods" className="underline">Manage payment preferences</Link></p>
+              </div>
+
               <div className="mt-7 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <span className="block text-xs uppercase tracking-widest text-muted">
@@ -294,7 +313,7 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
                   type="submit" disabled={pending}
                   className="cursor-pointer bg-sun px-6 py-4 font-bold text-night outline-none transition-all hover:-translate-y-0.5 hover:bg-night hover:text-white focus-visible:ring-2 focus-visible:ring-night focus-visible:ring-offset-2 active:translate-y-0"
                 >
-                  Preview booking request
+                  Add demo trip request
                 </button>
               </div>
             </form>

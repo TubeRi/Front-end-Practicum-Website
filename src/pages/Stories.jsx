@@ -1,7 +1,16 @@
+import { useState } from 'react';
+import ReviewSection from '../components/ReviewSection';
 import { testimonials } from '../data/testimonials';
 import Testimonial from '../components/Testimonial';
 function StoriesPage() {
-  const featured = testimonials[0]
+  const featured = testimonials[0];
+  const [addedReviews, setAddedReviews] = useState([]);
+  const recentReviews = [...addedReviews, ...testimonials.slice(1)];
+
+  function addReview(review) {
+    setAddedReviews(current => [review, ...current]);
+    requestAnimationFrame(() => document.getElementById('recent-reviews')?.scrollIntoView({ block: 'start' }));
+  }
 
   return (
     <>
@@ -22,6 +31,7 @@ function StoriesPage() {
                 into an experience they’ll carry with them.
               </p>
             </div>
+
 
             <div className="mt-16 grid gap-px bg-line sm:grid-cols-3">
               <div className="bg-canvas py-6 sm:px-6 sm:first:pl-0">
@@ -50,7 +60,7 @@ function StoriesPage() {
           <Testimonial testimonial={featured} featured />
         </section>
 
-        <section className="px-5 py-16 sm:px-6 sm:py-20 lg:px-10 lg:py-28">
+        <section id="recent-reviews" className="scroll-mt-24 px-5 py-16 sm:px-6 sm:py-20 lg:px-10 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 flex items-end justify-between border-b border-line pb-6">
               <div>
@@ -60,19 +70,20 @@ function StoriesPage() {
                 <h2 className="font-display text-5xl">Recent experiences</h2>
               </div>
               <p className="hidden text-sm text-muted sm:block">
-                Verified TravelPoint travelers
+                TravelPoint traveler reviews
               </p>
             </div>
 
             <div className="grid gap-px bg-line md:grid-cols-2">
-              {testimonials.slice(1).map((testimonial) => (
-                <Testimonial key={testimonial.name} testimonial={testimonial} />
+              {recentReviews.map((testimonial) => (
+                <Testimonial key={testimonial.id || testimonial.name} testimonial={testimonial} />
               ))}
             </div>
           </div>
         </section>
 
 
+        <ReviewSection onReviewAdded={addReview} />
       </main>
     </>
   )
