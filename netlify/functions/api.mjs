@@ -1,4 +1,4 @@
-import serverless from "serverless-http";
+import { createWebHandler } from "../../server/netlify-handler.js";
 import { pool, config } from "../../server/db.js";
 import { createAuth } from "../../server/auth.js";
 import { createApp } from "../../server/app.js";
@@ -11,4 +11,8 @@ const app = createApp({
   auth: createAuth(pool, config),
   serveStatic: false,
 });
-export const handler = serverless(app);
+
+// A default Web Request handler selects Netlify's modern ES-module runtime.
+// The legacy named handler export was bundled as CommonJS, which cannot load
+// Better Auth's ES-module entry point on the deployed runtime.
+export default createWebHandler(app);
