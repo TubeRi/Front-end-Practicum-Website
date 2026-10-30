@@ -73,18 +73,21 @@ Foreign keys link records to users. SQL values are parameterized. The backend de
 | GET /api/account | Current user's profile, trips, preferences and reviews |
 | PUT /api/profile | Save current user's details |
 | POST /api/bookings | Save an unpaid booking request |
+| POST /api/checkout | Create/reuse the signed-in user's test Checkout Session |
+| GET /api/orders/:id | Read only the current user's order and price snapshots |
+| POST /api/stripe/webhook | Verify Stripe's signature and update payment status |
 | POST /api/reviews | Publish a review linked to the current user |
 | POST /api/payment-preferences | Add a method type and nickname |
 | PUT /api/payment-preferences/:id/default | Select own preferred method |
 | DELETE /api/payment-preferences/:id | Remove own preference |
 
-All custom writes require the configured same-origin request. Authenticated routes return 401 for guests. Cookie sessions are managed by Better Auth; production requires HTTPS. Responses containing account data are not cached.
+Browser writes require the configured same-origin request. The Stripe webhook instead requires a valid Stripe signature over its raw body and is registered before the browser origin check and JSON parser. Authenticated routes return 401 for guests. Cookie sessions are managed by Better Auth; production requires HTTPS. Responses containing account data are not cached.
 
 ## What persists and what is not connected
 
 Refresh or sign out and sign back in: your profile, bookings, payment preferences and reviews are read back from PostgreSQL. Your reviews remain on the public Stories wall and are also shown in My reviews. Upcoming and past trips are grouped by trip end date in Europe/Vilnius. Displayed review dates use that same timezone; creation timestamps come from the server.
 
-Bookings are stored as **unpaid booking requests**, not supplier-confirmed reservations. No payment provider, card tokenization, charge, booking email, password-reset email, or email verification delivery is configured. Payment preferences are only method names and nicknames. The separate trip-ideas planner still creates an unsaved planning summary; use a destination's booking button to save a trip.
+Bookings start as **unpaid booking requests**. Stripe test Checkout can create a real test payment session when test keys and a webhook signing secret are configured. Only the verified webhook marks orders and trips paid; no real money is charged or supplier reservation made. Payment preferences remain method names and nicknames, not stored cards. Booking email, password-reset email, and email verification delivery are not configured. The separate trip-ideas planner still creates an unsaved planning summary. See [STRIPE-SETUP.md](STRIPE-SETUP.md) for local CLI and deployed test-payment setup.
 
 ## Verification
 

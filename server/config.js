@@ -14,6 +14,13 @@ export function readConfig() {
       "Set a random BETTER_AUTH_SECRET of at least 32 characters in .env.",
     );
   const origin = new URL(APP_ORIGIN).origin;
+  if (
+    process.env.STRIPE_SECRET_KEY &&
+    !process.env.STRIPE_SECRET_KEY.startsWith("sk_test_")
+  )
+    throw new Error(
+      "This course project accepts only Stripe test secret keys (sk_test_). Live payments are disabled.",
+    );
   if (process.env.NODE_ENV === "production" && !origin.startsWith("https://"))
     throw new Error("Production APP_ORIGIN must use HTTPS.");
   return {
@@ -22,5 +29,7 @@ export function readConfig() {
     origin,
     port: Number(PORT),
     host: process.env.HOST || "127.0.0.1",
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY || "",
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
   };
 }

@@ -52,8 +52,8 @@ export default function Account() {
       </section>
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-6 lg:px-10 lg:py-14">
         <p className="mb-8 border-l-2 border-sun bg-sand/50 p-4 text-sm text-muted">
-          Your details, bookings, and reviews are saved to your account. Booking
-          requests remain unpaid until a payment service is connected.
+          Your details, bookings, and reviews are saved to your account. Use
+          Stripe test checkout to pay for saved trips with fake money.
         </p>
         <nav
           aria-label="Profile sections"

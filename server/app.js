@@ -7,6 +7,11 @@ import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import { z } from "zod";
 import { trustedOrigins } from "./origins.js";
+import {
+  createStripe,
+  registerPaymentRoutes,
+  stripeWebhook,
+} from "./payments.js";
 
 const text = (max) => z.string().trim().max(max);
 const profileSchema = z.object({
@@ -61,11 +66,24 @@ const serializeReview = (row) => ({
 const issue = (status, message) =>
   Object.assign(new Error(message), { status });
 
-export function createApp({ pool, auth, config, serveStatic = true }) {
+export function createApp({
+  pool,
+  auth,
+  config,
+  serveStatic = true,
+  stripe = createStripe(config),
+}) {
   const app = express();
   const allowedOrigins = trustedOrigins(config.origin);
   app.disable("x-powered-by");
   app.use(helmet({ contentSecurityPolicy: false }));
+  // Stripe has no browser origin or login cookie. Its signature authorizes this
+  // one route, and must be checked against raw bytes before express.json().
+  app.post(
+    "/api/stripe/webhook",
+    express.raw({ type: "application/json", limit: "1mb" }),
+    stripeWebhook({ pool, stripe, config }),
+  );
   app.use("/api", (req, res, next) => {
     res.set("Cache-Control", "no-store");
     if (
@@ -121,6 +139,7 @@ export function createApp({ pool, auth, config, serveStatic = true }) {
     req.user = session.user;
     next();
   });
+  registerPaymentRoutes(app, { pool, stripe, config });
   app.get("/api/account", async (req, res) => {
     const id = req.user.id;
     const [profile, methods, trips, reviews] = await Promise.all([
@@ -130,7 +149,7 @@ export function createApp({ pool, auth, config, serveStatic = true }) {
         [id],
       ),
       pool.query(
-        `SELECT b.id,b.destination_id AS "destinationId",d.data->>'name' AS name,concat(d.data->>'location',', ',d.data->>'country') AS location,d.data->>'image' AS image,to_char(b.departure,'YYYY-MM-DD') AS departure,to_char(b.end_date,'YYYY-MM-DD') AS "endDate",b.travelers,b.total,b.payment_preference AS "paymentPreference",b.status FROM bookings b JOIN destinations d ON d.id=b.destination_id WHERE b.user_id=$1 ORDER BY b.created_at DESC`,
+        `SELECT b.id,b.destination_id AS "destinationId",d.data->>'name' AS name,concat(d.data->>'location',', ',d.data->>'country') AS location,d.data->>'image' AS image,to_char(b.departure,'YYYY-MM-DD') AS departure,to_char(b.end_date,'YYYY-MM-DD') AS "endDate",b.travelers,b.total,b.payment_preference AS "paymentPreference",b.status,o.id AS "orderId",o.status AS "orderStatus" FROM bookings b JOIN destinations d ON d.id=b.destination_id LEFT JOIN orders o ON o.booking_id=b.id WHERE b.user_id=$1 ORDER BY b.created_at DESC`,
         [id],
       ),
       pool.query(

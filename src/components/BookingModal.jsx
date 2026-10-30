@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { requestBooking } from "../services/integrations";
 import { useAuth } from "../context/AuthContext";
 import QuantityStepper from "./QuantityStepper";
+import { startCheckout } from "../services/checkout";
 
 const euro = new Intl.NumberFormat("en-IE", {
   style: "currency",
@@ -20,6 +21,7 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
     useAccount();
   const [paymentMethodId, setPaymentMethodId] = useState(defaultPaymentId);
   const requestId = useRef(crypto.randomUUID());
+  const lastDetails = useRef("");
   const dialogRef = useRef(null);
   const [pending, setPending] = useState(false);
   const [travelDate, setTravelDate] = useState(destination.dates[0]);
@@ -68,9 +70,23 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
       return;
     }
     if (!validate()) return;
+    const checkoutRequested = event.nativeEvent.submitter?.value !== "save";
+    const details = {
+      destinationId: destination.id,
+      travelDate,
+      travelers,
+      customerName,
+      email,
+      paymentMethodId,
+    };
+    const fingerprint = JSON.stringify(details);
+    if (lastDetails.current !== fingerprint) {
+      requestId.current = crypto.randomUUID();
+      lastDetails.current = fingerprint;
+    }
     setPending(true);
     try {
-      await requestBooking(
+      const booking = await requestBooking(
         {
           destinationId: destination.id,
           travelDate,
@@ -83,7 +99,8 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
         user,
       );
       refreshAccount().catch(() => {});
-      setSubmitted(true);
+      if (checkoutRequested) await startCheckout(booking.id);
+      else setSubmitted(true);
     } catch (issue) {
       setErrors({ submission: issue.message });
     } finally {
@@ -210,8 +227,8 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
 
             <form onSubmit={handleSubmit} noValidate className="p-5 sm:p-7">
               <p className="mb-5 text-sm text-muted">
-                Your request will be saved in My trips. Payment and final travel
-                confirmation are handled later.
+                Choose your trip details, then continue to Stripe test checkout
+                or save your request to pay later.
               </p>
               {errors.submission && <p role="alert">{errors.submission}</p>}
               <p className="text-xs font-bold uppercase tracking-widest text-moss">
@@ -364,7 +381,21 @@ function BookingModal({ destination, travelers, onTravelersChange, onClose }) {
                   disabled={pending || !destination.dates.length}
                   className="cursor-pointer bg-sun px-6 py-4 font-bold text-night outline-none transition-all hover:-translate-y-0.5 hover:bg-night hover:text-white focus-visible:ring-2 focus-visible:ring-night focus-visible:ring-offset-2 active:translate-y-0"
                 >
-                  {pending ? "Saving…" : "Save booking request"}
+                  {pending ? "Please wait…" : "Buy trip · Test checkout"}
+                </button>
+              </div>
+              <div className="mt-5 flex flex-col gap-4 border-t border-line pt-5 sm:items-start">
+                <p className="text-xs leading-relaxed text-muted">
+                  Stripe test mode only. No real money is charged. You can also
+                  save your trip and pay later from My trips.
+                </p>
+                <button
+                  type="submit"
+                  value="save"
+                  disabled={pending || !destination.dates.length}
+                  className="border-b border-ink py-2 text-sm font-bold transition-colors hover:text-moss disabled:opacity-60"
+                >
+                  Save booking request without payment
                 </button>
               </div>
             </form>

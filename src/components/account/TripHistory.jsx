@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useAccount } from "../../context/AccountContext";
 import { formatTripDate, groupTrips } from "../../services/account";
+import PayTripButton from "./PayTripButton";
 
 const euro = new Intl.NumberFormat("en-IE", {
   style: "currency",
@@ -24,8 +25,8 @@ export default function TripHistory() {
         Your journeys
       </h2>
       <p className="mt-3 text-sm text-muted">
-        Your saved booking requests appear here. Payment and final travel
-        confirmation are handled later.
+        Your saved trips and Stripe test payment status appear here. No real
+        money is charged or travel reserved.
       </p>
       <div
         className="mt-6 flex flex-wrap gap-2"
@@ -101,6 +102,18 @@ export default function TripHistory() {
                 <p className="mt-3 inline-block bg-sun/25 px-3 py-2 text-xs font-bold">
                   {trip.status}
                 </p>
+                {trip.orderId && (
+                  <Link
+                    to={"/checkout/success?order=" + trip.orderId}
+                    className="mt-4 block text-sm font-bold underline hover:text-moss"
+                  >
+                    View order status
+                  </Link>
+                )}
+                {!trip.status.startsWith("Paid") &&
+                  !["expired", "failed"].includes(trip.orderStatus) && (
+                    <PayTripButton bookingId={trip.id} />
+                  )}
               </div>
             </article>
           ))
