@@ -1,96 +1,133 @@
 # TravelPoint
 
-Travel agency course project using React, Vite, Tailwind CSS, React Router, Express, PostgreSQL, and Better Auth. The frontend keeps the existing design. Accounts, profile details, booking requests, payment preferences, and reviews now use the backend.
+TravelPoint is a travel website built with **React, Vite and Tailwind CSS**. Users can explore destinations, create an account, manage their profile, book trips, write reviews and make **Stripe test payments**. No real money is charged or real travel reservation made.
 
-## First setup
+## Technologies
 
-Use Node.js 22.12+ (Node 24 recommended).
+| Technology | Role |
+| --- | --- |
+| React + React Router | Components, interface state and page navigation |
+| Vite + Tailwind CSS | Development/build tools and styling |
+| Node.js + Express | Backend server and API routes |
+| PostgreSQL + Neon | Persistent database and hosting |
+| Better Auth | Signup, login, password hashing and sessions |
+| Zod | Request validation |
+| Stripe | Hosted test checkout and payment confirmation |
+| Netlify | Frontend hosting and backend functions |
 
-1. Install dependencies with npm install.
-2. Create a free project in https://console.neon.tech (or use another PostgreSQL provider). Select its connection dialog and copy the PostgreSQL connection string. Never share it publicly.
-3. Copy .env.example to .env **only if .env does not already exist**. A local .env with a generated authentication secret may already be present. Fill DATABASE_URL with the actual connection string, retaining the provider's TLS options. Keep APP_ORIGIN=http://localhost:5173 for local development. Generate a secret if needed with node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))" and save it as BETTER_AUTH_SECRET.
-4. Run npm run db:setup. This creates Better Auth's tables, the application schema, and seeds the catalog and editorial testimonials. Running it again preserves accounts, bookings, and user reviews.
-5. Run npm run dev. This starts the API on port 4000 and Vite on http://localhost:5173. Use this address, not Live Server or a directly opened dist/index.html.
-6. Open Log in, choose Create account, and register your own account. The previous temporary admin credentials have been removed. No shared administrator account is built in.
+## Project structure
 
-.env and .env.* are ignored by Git, except .env.example. DATABASE_URL and BETTER_AUTH_SECRET are server-only: never prefix them with VITE_, which exposes values to the browser. No real hosted database has been provisioned until the connection is supplied and db:setup succeeds.
+```text
+src/
+  main.jsx          Mounts React and shared providers
+  App.jsx           Routes and shared layout
+  pages/            Website pages
+  components/       Reusable interface sections
+  context/          Shared authentication, catalog and account state
+  services/         API request functions
+server/
+  index.js          Starts the local backend
+  app.js            Main API routes, validation and access checks
+  auth.js           Better Auth configuration
+  db.js             PostgreSQL connection pool
+  config.js         Environment settings
+  payments.js       Checkout, order lookup and Stripe webhook
+  schema.sql        Application database tables
+  migrate.js        Applies authentication and application schema
+  seed.js           Loads sample catalog and editorial stories
+  tests/            Backend integration tests
+netlify/functions/api.mjs   Deployed backend entry point
+netlify.toml               Hosting and URL rewrites
+```
 
-## Commands
+## How the frontend and API work
+
+`main.jsx` starts React. `App.jsx` selects a page from the URL and renders the shared header and footer. Pages combine smaller components. Props pass data to children, state stores changing values, and context shares data across the application. Tailwind classes style the components.
+
+The frontend calls the backend through `src/services/integrations.js`:
+
+```text
+React component → /api request → Express → PostgreSQL
+React updates  ← JSON response ← Express ← stored data
+```
+
+For example, `GET /api/destinations` reads the catalog from PostgreSQL. React stores the returned objects in context and renders destination cards. The seed arrays initialize the database; the frontend reads the real API.
+
+Express validates input with Zod, checks access and runs parameterized SQL queries. Protected routes use the user ID from the verified session, so users cannot access someone else's private records by sending a different ID.
+
+## Authentication and database
+
+Better Auth handles signup, login, password hashing and cookie sessions. The browser sends its session cookie with API requests. The backend verifies it before returning private data. `AuthContext` restores signed-in state on refresh; signing out revokes the session.
+
+| Tables | Stored data |
+| --- | --- |
+| `user`, `account`, `session`, `verification` | Better Auth records |
+| `destinations`, `departures` | Catalog, prices and available dates |
+| `profiles`, `payment_preferences` | User details and payment nicknames; no card numbers |
+| `bookings` | User-owned trip requests, travelers, dates and status |
+| `reviews` | Reviews, ratings, authors and server posting dates |
+| `orders`, `order_items` | Payment status and purchased items with price snapshots in cents |
+
+Foreign keys link records together. Data remains after logout or refresh. Users can publish reviews and delete their own non-editorial reviews.
+
+## Stripe payment flow
+
+1. The signed-in user creates a booking. The backend checks availability and calculates its price from the database.
+2. `POST /api/checkout` verifies ownership, creates or reuses a pending order, and starts Stripe Checkout.
+3. The browser opens Stripe's hosted payment page.
+4. Stripe calls `/api/stripe/webhook`. The backend verifies the signature and checks the order, user, amount and currency.
+5. **Only the verified webhook marks the order paid.** The success page reads the order from the API and retries briefly while confirmation is pending.
+
+The webhook receives the raw request body before JSON parsing, which is required for signature verification. Repeated requests and webhook events are handled without duplicating orders or paid updates. Only Stripe test keys are accepted.
+
+## Main API routes
+
+| Route | Purpose |
+| --- | --- |
+| `GET /api/health` | Check database connectivity |
+| `GET /api/destinations` | Public catalog |
+| `GET /api/reviews` | Public stories wall |
+| `/api/auth/*` | Signup, login, session and logout |
+| `GET /api/account` | Current user's profile, trips and reviews |
+| `PUT /api/profile` | Save own profile |
+| `POST /api/bookings` | Save an unpaid booking |
+| `POST /api/checkout` | Start test checkout |
+| `GET /api/orders/:id` | Read own order status |
+| `POST /api/stripe/webhook` | Process signed Stripe events |
+| `POST /api/reviews` | Publish a review |
+| `DELETE /api/reviews/:id` | Delete own review |
+| `/api/payment-preferences` | Add, select or remove payment nicknames |
+
+## Run locally
+
+Use Node.js 22.12+; Node 24 is recommended.
+
+1. Run `npm install`.
+2. Create a Neon PostgreSQL database and put its connection string in a root `.env` file.
+3. Configure `DATABASE_URL`, `BETTER_AUTH_SECRET` (at least 32 random characters), and `APP_ORIGIN=http://localhost:5173`.
+4. For payments, also set `STRIPE_SECRET_KEY` (`sk_test_...`) and the matching `STRIPE_WEBHOOK_SECRET` (`whsec_...`).
+5. Run `npm run db:setup`, then `npm run dev`.
+6. Open `http://localhost:5173` through Vite, rather than Live Server.
+
+Keep `.env` private and uncommitted. Never prefix server secrets with `VITE_`.
 
 | Command | Purpose |
 | --- | --- |
-| npm run dev | Run API and frontend together |
-| npm run dev:client | Frontend only; requires a running API |
-| npm run dev:server | Backend with restart on changes |
-| npm run db:setup | Create schema and seed PostgreSQL |
-| npm run build | Build React into dist/ |
-| npm start | Serve the built frontend and API together |
-| npm test | Integration checks with a disposable local PostgreSQL engine |
+| `npm run dev` | Start frontend and API |
+| `npm run db:setup` | Apply schema and seed sample data |
+| `npm run db:migrate` | Apply schema without seeding |
+| `npm test` | Run backend integration tests |
+| `npm run build` | Build frontend and copy images |
+| `npm start` | Run standalone backend and built frontend |
 
-For production, build first and set NODE_ENV=production, APP_ORIGIN to the site's HTTPS origin, PORT to the backend port, and the server secrets in the host's environment. Serve through an HTTPS reverse proxy forwarding /api, /images, assets, and page routes to this server. The default server binds to localhost; configure HOST=0.0.0.0 when required by your hosting service. Set proxy trust only for your actual trusted proxy; do not blindly trust forwarded headers. Configure per-IP auth limits for your hosting arrangement before public launch. npm run preview only previews static assets and does not provide the backend.
+## Deployment and testing
 
-## Project structure and rendering
+Locally, Vite forwards `/api` requests to Express on port 4000. On Netlify, `/api/*` goes to the backend function, while page routes go to React's `index.html`.
 
-- src/main.jsx mounts React and wraps the app in BrowserRouter, AuthProvider, AccountProvider, CatalogProvider, and ReviewsProvider.
-- src/App.jsx selects a page using the URL and renders the shared Header and Footer. Home composes Hero, DestinationPicker, and MainContent.
-- src/context/AuthContext.jsx restores the server session on refresh. Login/signup call Better Auth; logout revokes the session. RequireAuth waits for session loading and redirects guests to login with a safe internal return URL.
-- src/context/CatalogContext.jsx loads destination objects from GET /api/destinations. Cards, the home grid, and the country picker use that shared response, rather than importing hardcoded JSX/data arrays.
-- src/components/DestinationGrid.jsx owns category, search, duration and sorting state. Each DestinationCard reuses the controlled QuantityStepper.
-- src/context/AccountContext.jsx loads only the signed-in user's profile, trips, payment preferences and reviews. ProfileForm, TripHistory, PaymentPreferences, and MyReviews each handle one section.
-- src/context/ReviewsContext.jsx loads the public review wall. A successful submission adds the server's review immediately and refreshes the personal account data. The form is entirely hidden for guests.
-- src/services/integrations.js is the shared fetch boundary. Cookies travel with requests; passwords/session tokens are not put in localStorage or sessionStorage.
-- src/index.css and Tailwind utility classes provide the styling. Vite proxies /api and /images to the backend during development.
-- server/app.js contains the JSON routes, validation, access control and static serving.
-- server/auth.js configures Better Auth email/password authentication and seven-day sessions.
-- server/schema.sql defines the application tables. server/migrate.js runs the authentication library migrations first.
-- server/seed-data/ holds the original destination and editorial testimonial arrays, used only by server/seed.js. The first six photos remain in the existing photo folder and are served at /images. Future sample departures are added for next year so the sample catalog remains bookable.
+Set production environment variables with Functions access, use the public HTTPS origin for `APP_ORIGIN`, and redeploy after changing settings. Database migrations run separately from the frontend build.
 
-## Database tables
+Automated tests cover authentication, ownership, bookings, reviews and payment rules using a disposable database and mocked Stripe session calls. To verify the complete deployed flow, make a test-card purchase and confirm that the webhook, success page and database all show paid.
 
-| Table | Stored information |
-| --- | --- |
-| user, account, session, verification | Better Auth owns accounts, password hashes, sessions and verification records |
-| destinations | Catalog descriptions, photos, categories, prices, durations |
-| departures | Available dates for each destination |
-| profiles | Address, hobbies, travel style and other personal details, linked to user |
-| bookings | User, destination, dates, traveler count, trusted total, contact details, unpaid status and payment preference nickname |
-| payment_preferences | User-owned payment type/nickname and preferred choice; no card numbers or bank credentials |
-| reviews | Public name, rating, review and server posting date, linked to the author's account; original editorial entries have no account owner |
+Payment preferences are nicknames, not saved Stripe cards. Email delivery and real supplier reservations are not connected.
 
-Foreign keys link records to users. SQL values are parameterized. The backend derives ownership from the verified session rather than a user ID supplied by the browser. Prices and trip length come from the database, and only available future departures can be requested. Repeating a booking request with the same request ID does not duplicate it. Original editorial testimonials remain distinct from new user reviews.
-
-## API routes
-
-| Method and route | Access / behavior |
-| --- | --- |
-| GET /api/health | Database connectivity status |
-| GET /api/destinations | Public JSON catalog and categories |
-| GET /api/reviews | Public editorial stories and user reviews |
-| POST /api/auth/sign-up/email | Register and sign in |
-| POST /api/auth/sign-in/email | Email/password login |
-| GET /api/auth/get-session | Restore current signed-in state |
-| POST /api/auth/sign-out | Revoke session |
-| GET /api/account | Current user's profile, trips, preferences and reviews |
-| PUT /api/profile | Save current user's details |
-| POST /api/bookings | Save an unpaid booking request |
-| POST /api/checkout | Create/reuse the signed-in user's test Checkout Session |
-| GET /api/orders/:id | Read only the current user's order and price snapshots |
-| POST /api/stripe/webhook | Verify Stripe's signature and update payment status |
-| POST /api/reviews | Publish a review linked to the current user |
-| POST /api/payment-preferences | Add a method type and nickname |
-| PUT /api/payment-preferences/:id/default | Select own preferred method |
-| DELETE /api/payment-preferences/:id | Remove own preference |
-
-Browser writes require the configured same-origin request. The Stripe webhook instead requires a valid Stripe signature over its raw body and is registered before the browser origin check and JSON parser. Authenticated routes return 401 for guests. Cookie sessions are managed by Better Auth; production requires HTTPS. Responses containing account data are not cached.
-
-## What persists and what is not connected
-
-Refresh or sign out and sign back in: your profile, bookings, payment preferences and reviews are read back from PostgreSQL. Your reviews remain on the public Stories wall and are also shown in My reviews. Upcoming and past trips are grouped by trip end date in Europe/Vilnius. Displayed review dates use that same timezone; creation timestamps come from the server.
-
-Bookings start as **unpaid booking requests**. Stripe test Checkout can create a real test payment session when test keys and a webhook signing secret are configured. Only the verified webhook marks orders and trips paid; no real money is charged or supplier reservation made. Payment preferences remain method names and nicknames, not stored cards. Booking email, password-reset email, and email verification delivery are not configured. The separate trip-ideas planner still creates an unsaved planning summary. See [STRIPE-SETUP.md](STRIPE-SETUP.md) for local CLI and deployed test-payment setup.
-
-## Verification
-
-npm test exercises real Better Auth signup, password hashing, failed login, sessions, logout/relogin, idempotent seeding, JSON catalog, profile persistence, booking idempotency, server-calculated prices, rejected past dates, public review persistence and server timestamps, guest rejection, origin checks, and isolation between two users. It uses PGlite, a disposable local PostgreSQL engine, through a test-only adapter. This does not prove a hosted Neon connection: run db:setup and the application against your actual DATABASE_URL to verify that deployment.
-
-Browser QA may use server/tests/browser-server.js for an explicitly disposable test API. It is never used by npm run dev or npm start and all its data disappears when stopped.
+More instructions: [Netlify setup](NETLIFY-SETUP.md) · [Stripe setup](STRIPE-SETUP.md)
