@@ -172,7 +172,7 @@ test("test checkout uses trusted prices and only signed webhooks can mark owned 
   );
   assert.equal(lastParams.line_items[0].quantity, 2);
   assert.equal(lastParams.mode, "payment");
-  assert.deepEqual(lastParams.payment_method_types, ["card"]);
+  assert.equal(Object.hasOwn(lastParams, "payment_method_types"), false);
   assert.equal((await request(path)).status, 401);
   assert.equal((await request(path, { cookie: other.cookie })).status, 404);
   let order = (await request(path, { cookie })).data.order;

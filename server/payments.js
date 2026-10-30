@@ -113,7 +113,6 @@ export function registerPaymentRoutes(app, { pool, stripe, config }) {
         session = await stripe.checkout.sessions.create(
           {
             mode: "payment",
-            payment_method_types: ["card"],
             customer_email: req.user.email,
             client_reference_id: order.id,
             metadata: { orderId: order.id, userId: req.user.id },
@@ -130,7 +129,7 @@ export function registerPaymentRoutes(app, { pool, stripe, config }) {
             success_url: `${config.origin}/checkout/success?order=${order.id}`,
             cancel_url: `${config.origin}/checkout/cancel?order=${order.id}`,
           },
-          { idempotencyKey: `travelpoint-order-${order.id}` },
+          { idempotencyKey: `travelpoint-order-v2-${order.id}` },
         );
         if (session.livemode !== false)
           throw fail(502, "Only test payments are allowed.");

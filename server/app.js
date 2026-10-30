@@ -333,7 +333,9 @@ export function createApp({
         .status(400)
         .json({ message: error.issues[0]?.message || "Invalid details." });
     const status =
-      error.status >= 400 && error.status < 500 ? error.status : 500;
+      (error.status >= 400 && error.status < 500) || error.status === 503
+        ? error.status
+        : 500;
     if (status === 500)
       console.error("API request failed:", error.code || error.name);
     res.status(status).json({
