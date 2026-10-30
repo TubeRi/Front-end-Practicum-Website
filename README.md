@@ -2,9 +2,9 @@
 
 TravelPoint is a travel website built with **React, Vite and Tailwind CSS**. Users can explore destinations, create an account, manage their profile, book trips, write reviews and make **Stripe test payments**. No real money is charged or real travel reservation made.
 
-## Technologies
+## Tech Stack
 
-| Technology | Role |
+| Tech Stack | Role |
 | --- | --- |
 | React + React Router | Components, interface state and page navigation |
 | Vite + Tailwind CSS | Development/build tools and styling |
